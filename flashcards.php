@@ -1,6 +1,46 @@
-<?php
+﻿<?php
+/**
+ * ============================================================================
+ * ARCHIVO: flashcards.php
+ * ============================================================================
+ * PROPÓSITO:
+ *   Genera tarjetas de estudio (flashcards) interactivas usando la IA Gemini.
+ *   Permite a usuarios crear conjuntos de flashcards basados en un tema o
+ *   documento cargado, y las almacena en el historial para revisión posterior.
+ *
+ * FUNCIONALIDAD CLAVE:
+ *   - Valida autenticación del usuario
+ *   - Genera 10 flashcards por solicitud usando API de Gemini
+ *   - Soporta entrada de texto (tema) o archivo adjunto
+ *   - Formato de respuesta: pares pregunta-respuesta en JSON
+ *   - Almacena flashcards en la tabla 'historial' con tipo 'flashcards'
+ *   - Interfaz interactiva para estudiar las tarjetas
+ *   - Sistema de volteo de tarjetas (frente/reverso)
+ *
+ * FLUJO DE DATOS:
+ *   1. Usuario completa formulario con tema (y opcionalmente archivo)
+ *   2. Sistema envía solicitud a API Gemini
+ *   3. Gemini genera 10 flashcards en formato JSON
+ *   4. Sistema extrae JSON entre CARDS_START y CARDS_END
+ *   5. Flashcards se almacenan en BD (tabla historial)
+ *   6. Se muestran en interfaz de estudio interactiva
+ *
+ * DEPENDENCIAS:
+ *   - conn.php (conexión a BD)
+ *   - api_key.php (clave API de Gemini)
+ *   - Session activa (usuario autenticado)
+ *   - API de Gemini (requiere conexión)
+ *
+ * ALMACENAMIENTO:
+ *   - Tabla: historial
+ *   - Campos: user_id, pregunta (tema), contenido_json, tipo='flashcards', fecha
+ *
+ * ============================================================================
+ */
+
 session_start();
 include 'conn.php';
+require_once 'api_key.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
@@ -13,7 +53,7 @@ $cards = null;
 $temaGenerado = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
-    $apiKey = 'AIzaSyBuCCzzEbuf5kFdaH5q8LR9qW69G_plzEs';
+    $apiKey = API_KEY;
     $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
 
     $systemPrompt = "Eres un profesor experto. No saludes, no des introducciones. Genera exactamente 10 flashcards sobre el tema solicitado. Cada flashcard tiene una pregunta o concepto en el frente y la respuesta o definición en el reverso. Responde estrictamente en este formato JSON y nada más:
@@ -72,13 +112,13 @@ CARDS_END";
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6fb;
+            background: #F4F4F4;
             min-height: 100vh;
         }
 
         .topbar {
             background: white;
-            border-bottom: 1px solid #e8eaf0;
+            border-bottom: 1px solid #E0E0E0;
             padding: 0 32px;
             height: 60px;
             display: flex;
@@ -91,9 +131,9 @@ CARDS_END";
         }
 
         .topbar-left { display: flex; align-items: center; gap: 12px; font-size: 14px; color: #888; }
-        .topbar-logo { font-size: 18px; font-weight: 700; color: #667eea; text-decoration: none; }
+        .topbar-logo { font-size: 18px; font-weight: 700; color: #333; text-decoration: none; }
         .topbar-sep { color: #ccc; }
-        .topbar-link { color: #667eea; text-decoration: none; }
+        .topbar-link { color: #333; text-decoration: none; }
         .topbar-link:hover { text-decoration: underline; }
         .topbar-current { color: #555; font-weight: 500; }
         .topbar-right { display: flex; align-items: center; gap: 12px; }
@@ -101,27 +141,27 @@ CARDS_END";
 
         .btn-outline {
             font-size: 13px;
-            color: #1e8a5a;
+            color: #333;
             text-decoration: none;
             padding: 6px 14px;
-            border: 1px solid #1e8a5a;
+            border: 1px solid #333;
             border-radius: 6px;
             transition: 0.2s;
         }
 
-        .btn-outline:hover { background: #1e8a5a; color: white; }
+        .btn-outline:hover { background: #333; color: white; }
 
         .page-wrapper { max-width: 900px; margin: 0 auto; padding: 48px 24px; }
         .page-header { margin-bottom: 32px; }
-        .page-header h1 { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
-        .page-header p { color: #7a7a9a; font-size: 14px; }
+        .page-header h1 { font-size: 26px; font-weight: 700; color: #111; margin-bottom: 6px; }
+        .page-header p { color: #555; font-size: 14px; }
 
         .form-card {
             background: white;
             border-radius: 14px;
             padding: 32px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-            border: 1.5px solid #d8f5e8;
+            border: 1.5px solid #F0F0F0;
         }
 
         .form-label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 8px; }
@@ -129,7 +169,7 @@ CARDS_END";
         .form-input {
             width: 100%;
             padding: 12px 14px;
-            border: 1.5px solid #e0e0f0;
+            border: 1.5px solid #e0e0e0;
             border-radius: 8px;
             font-size: 15px;
             font-family: inherit;
@@ -139,15 +179,15 @@ CARDS_END";
             resize: vertical;
         }
 
-        .form-input:focus { outline: none; border-color: #43d98e; background: white; }
+        .form-input:focus { outline: none; border-color: #333; background: white; }
 
         .file-zone {
             margin-top: 16px;
             padding: 16px;
-            border: 2px dashed #e0e0f0;
+            border: 2px dashed #e0e0e0;
             border-radius: 8px;
             text-align: center;
-            color: #aaa;
+            color: #888;
             font-size: 13px;
         }
 
@@ -157,7 +197,7 @@ CARDS_END";
             margin-top: 20px;
             width: 100%;
             padding: 13px;
-            background: linear-gradient(135deg, #43d98e, #1e8a5a);
+            background: #111;
             color: white;
             border: none;
             border-radius: 8px;
@@ -176,14 +216,14 @@ CARDS_END";
             padding: 20px 28px;
             margin-bottom: 24px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: 1.5px solid #d8f5e8;
+            border: 1.5px solid #F0F0F0;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .deck-header h2 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
-        .deck-counter { font-size: 13px; color: #43d98e; font-weight: 700; }
+        .deck-header h2 { font-size: 18px; font-weight: 700; color: #111; }
+        .deck-counter { font-size: 13px; color: #333; font-weight: 700; }
 
         .flashcard-nav {
             display: flex;
@@ -197,7 +237,7 @@ CARDS_END";
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            border: 2px solid #d8f5e8;
+            border: 2px solid #F0F0F0;
             background: white;
             font-size: 18px;
             cursor: pointer;
@@ -205,10 +245,10 @@ CARDS_END";
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #1e8a5a;
+            color: #333;
         }
 
-        .nav-btn:hover:not(:disabled) { background: #e4faf1; border-color: #43d98e; }
+        .nav-btn:hover:not(:disabled) { background: #F5F5F5; border-color: #333; }
         .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
         .card-indicator { font-size: 14px; color: #888; font-weight: 600; min-width: 80px; text-align: center; }
@@ -246,11 +286,11 @@ CARDS_END";
 
         .flashcard-front {
             background: white;
-            border: 2px solid #d8f5e8;
+            border: 2px solid #F0F0F0;
         }
 
         .flashcard-back {
-            background: linear-gradient(135deg, #43d98e, #1e8a5a);
+            background: #111;
             transform: rotateY(180deg);
         }
 
@@ -262,7 +302,7 @@ CARDS_END";
             margin-bottom: 14px;
         }
 
-        .flashcard-front .card-label { color: #43d98e; }
+        .flashcard-front .card-label { color: #333; }
         .flashcard-back .card-label { color: rgba(255,255,255,0.7); }
 
         .card-text {
@@ -271,7 +311,7 @@ CARDS_END";
             line-height: 1.5;
         }
 
-        .flashcard-front .card-text { color: #1a1a2e; }
+        .flashcard-front .card-text { color: #111; }
         .flashcard-back .card-text { color: white; }
 
         .flip-hint {
@@ -292,13 +332,13 @@ CARDS_END";
             background: white;
             border-radius: 12px;
             padding: 20px;
-            border: 1.5px solid #d8f5e8;
+            border: 1.5px solid #F0F0F0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .grid-card-q { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; }
         .grid-card-a { font-size: 13px; color: #666; line-height: 1.5; }
-        .grid-card-sep { width: 30px; height: 2px; background: #43d98e; margin-bottom: 10px; border-radius: 2px; }
+        .grid-card-sep { width: 30px; height: 2px; background: #333; margin-bottom: 10px; border-radius: 2px; }
 
         .deck-actions { margin-top: 28px; display: flex; gap: 10px; flex-wrap: wrap; }
 
@@ -313,8 +353,8 @@ CARDS_END";
             border: none;
         }
 
-        .btn-new { background: #e4faf1; color: #1e8a5a; }
-        .btn-new:hover { background: #c8f5e0; }
+        .btn-new { background: #F5F5F5; color: #333; }
+        .btn-new:hover { background: #f0f0f0; }
 
         .view-toggle {
             display: flex;
@@ -328,13 +368,13 @@ CARDS_END";
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            border: 1.5px solid #d8f5e8;
+            border: 1.5px solid #F0F0F0;
             background: white;
             color: #888;
             transition: 0.2s;
         }
 
-        .toggle-btn.active { background: #e4faf1; border-color: #43d98e; color: #1e8a5a; }
+        .toggle-btn.active { background: #F5F5F5; border-color: #333; color: #333; }
 
         .loading-overlay {
             display: none;
@@ -353,14 +393,14 @@ CARDS_END";
         .spinner {
             width: 44px;
             height: 44px;
-            border: 4px solid #d8f5e8;
-            border-top-color: #43d98e;
+            border: 4px solid #F0F0F0;
+            border-top-color: #333;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { font-size: 15px; color: #1e8a5a; font-weight: 600; }
+        .loading-text { font-size: 15px; color: #333; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -491,10 +531,13 @@ CARDS_END";
     <div style="background:white;border-radius:14px;padding:32px;text-align:center;color:#888;">
         No se pudieron generar las flashcards. Inténtalo de nuevo.
         <br><br>
-        <a href="flashcards.php" style="color:#1e8a5a;font-weight:600;">Volver a intentarlo</a>
+        <a href="flashcards.php" style="color:#333;font-weight:600;">Volver a intentarlo</a>
     </div>
     <?php endif; ?>
 </div>
 
 </body>
 </html>
+
+
+

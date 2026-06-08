@@ -1,6 +1,52 @@
-<?php
+﻿<?php
+/**
+ * ============================================================================
+ * ARCHIVO: test.php
+ * ============================================================================
+ * PROPÓSITO:
+ *   Genera tests interactivos de opción múltiple basados en temas usando IA.
+ *   Permite a usuarios practicar conocimientos con evaluación automática.
+ *
+ * FUNCIONALIDAD CLAVE:
+ *   - Valida autenticación del usuario
+ *   - Genera 8-10 preguntas de opción múltiple (4 opciones cada una)
+ *   - Soporta entrada de texto (tema) o archivo adjunto
+ *   - Respuesta en formato JSON con preguntas y respuesta correcta
+ *   - Almacena test en tabla 'historial' con tipo 'test'
+ *   - Interfaz interactiva con puntuación en tiempo real
+ *   - Sistema AJAX para guardar resultados sin recargar
+ *
+ * ESTRUCTURA JSON DE RESPUESTA:
+ *   [
+ *     {
+ *       "p": "¿Pregunta?",
+ *       "o": ["Opción A", "Opción B", "Opción C", "Opción D"],
+ *       "correcta": 0  (índice de la respuesta correcta: 0-3)
+ *     }
+ *   ]
+ *
+ * FLUJO DE DATOS:
+ *   1. Usuario envía tema (texto o archivo)
+ *   2. Sistema solicita test a Gemini
+ *   3. Gemini responde con JSON entre JSON_START y JSON_END
+ *   4. Se extrae y valida JSON
+ *   5. Se almacena en tabla historial
+ *   6. Se muestra interfaz interactiva
+ *   7. Usuario responde preguntas
+ *   8. Sistema calcula puntuación y guarda resultados vía AJAX
+ *
+ * DEPENDENCIAS:
+ *   - conn.php (conexión a BD)
+ *   - api_key.php (clave de Gemini)
+ *   - Session activa
+ *   - API Gemini
+ *
+ * ============================================================================
+ */
+
 session_start();
 include 'conn.php';
+require_once 'api_key.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
@@ -14,7 +60,7 @@ $temaGenerado = null;
 $id_registro = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
-    $apiKey = 'AIzaSyBuCCzzEbuf5kFdaH5q8LR9qW69G_plzEs';
+    $apiKey = API_KEY;
     $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
 
     $systemPrompt = "Eres un profesor experto. No saludes, no des introducciones. Genera únicamente un test de 8-10 preguntas de opción múltiple (4 opciones cada una) sobre el tema solicitado. Responde estrictamente en este formato y nada más:
@@ -82,13 +128,13 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6fb;
+            background: #F4F4F4;
             min-height: 100vh;
         }
 
         .topbar {
             background: white;
-            border-bottom: 1px solid #e8eaf0;
+            border-bottom: 1px solid #E0E0E0;
             padding: 0 32px;
             height: 60px;
             display: flex;
@@ -108,9 +154,9 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
             color: #888;
         }
 
-        .topbar-logo { font-size: 18px; font-weight: 700; color: #667eea; text-decoration: none; }
+        .topbar-logo { font-size: 18px; font-weight: 700; color: #333; text-decoration: none; }
         .topbar-sep { color: #ccc; }
-        .topbar-link { color: #667eea; text-decoration: none; }
+        .topbar-link { color: #333; text-decoration: none; }
         .topbar-link:hover { text-decoration: underline; }
         .topbar-current { color: #555; font-weight: 500; }
         .topbar-right { display: flex; align-items: center; gap: 12px; }
@@ -118,28 +164,28 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
 
         .btn-outline {
             font-size: 13px;
-            color: #2b7fd4;
+            color: #333;
             text-decoration: none;
             padding: 6px 14px;
-            border: 1px solid #2b7fd4;
+            border: 1px solid #333;
             border-radius: 6px;
             transition: 0.2s;
         }
 
-        .btn-outline:hover { background: #2b7fd4; color: white; }
+        .btn-outline:hover { background: #333; color: white; }
 
         .page-wrapper { max-width: 820px; margin: 0 auto; padding: 48px 24px; }
 
         .page-header { margin-bottom: 32px; }
-        .page-header h1 { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
-        .page-header p { color: #7a7a9a; font-size: 14px; }
+        .page-header h1 { font-size: 26px; font-weight: 700; color: #111; margin-bottom: 6px; }
+        .page-header p { color: #555; font-size: 14px; }
 
         .form-card {
             background: white;
             border-radius: 14px;
             padding: 32px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-            border: 1.5px solid #dff0ff;
+            border: 1.5px solid #F0F0F0;
         }
 
         .form-label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 8px; }
@@ -147,7 +193,7 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
         .form-input {
             width: 100%;
             padding: 12px 14px;
-            border: 1.5px solid #e0e0f0;
+            border: 1.5px solid #e0e0e0;
             border-radius: 8px;
             font-size: 15px;
             font-family: inherit;
@@ -157,15 +203,15 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
             resize: vertical;
         }
 
-        .form-input:focus { outline: none; border-color: #4facfe; background: white; }
+        .form-input:focus { outline: none; border-color: #333; background: white; }
 
         .file-zone {
             margin-top: 16px;
             padding: 16px;
-            border: 2px dashed #e0e0f0;
+            border: 2px dashed #e0e0e0;
             border-radius: 8px;
             text-align: center;
-            color: #aaa;
+            color: #888;
             font-size: 13px;
         }
 
@@ -175,7 +221,7 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
             margin-top: 20px;
             width: 100%;
             padding: 13px;
-            background: linear-gradient(135deg, #4facfe, #2b7fd4);
+            background: #111;
             color: white;
             border: none;
             border-radius: 8px;
@@ -193,19 +239,19 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
             border-radius: 14px;
             padding: 24px 32px;
             margin-bottom: 20px;
-            border: 1.5px solid #dff0ff;
+            border: 1.5px solid #F0F0F0;
             box-shadow: 0 2px 10px rgba(0,0,0,0.07);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .quiz-header-left h2 { font-size: 20px; font-weight: 700; color: #1a1a2e; }
-        .quiz-header-left p { font-size: 13px; color: #aaa; margin-top: 4px; }
+        .quiz-header-left h2 { font-size: 20px; font-weight: 700; color: #111; }
+        .quiz-header-left p { font-size: 13px; color: #888; margin-top: 4px; }
 
         .score-badge {
-            background: #e6f4ff;
-            color: #2b7fd4;
+            background: #F5F5F5;
+            color: #333;
             font-size: 15px;
             font-weight: 700;
             padding: 8px 18px;
@@ -219,7 +265,7 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
             padding: 24px 28px;
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: 1.5px solid #f0f0f8;
+            border: 1.5px solid #EAEAEA;
         }
 
         .question-text {
@@ -242,7 +288,7 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
 
         .opt-btn {
             padding: 11px 16px;
-            border: 1.5px solid #e0e0f0;
+            border: 1.5px solid #e0e0e0;
             border-radius: 8px;
             background: #fafafa;
             color: #333;
@@ -253,10 +299,10 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
             font-family: inherit;
         }
 
-        .opt-btn:hover:not(:disabled) { border-color: #4facfe; background: #f0f8ff; }
+        .opt-btn:hover:not(:disabled) { border-color: #333; background: #f4f4f4; }
         .opt-btn:disabled { cursor: not-allowed; }
-        .opt-btn.correct { background: #e9f9ee; border-color: #43d98e; color: #1e8a5a; font-weight: 600; }
-        .opt-btn.wrong { background: #fff0f0; border-color: #f56060; color: #b94040; }
+        .opt-btn.correct { background: #f5f5f5; border-color: #333; color: #333; font-weight: 600; }
+        .opt-btn.wrong { background: #F5F5F5; border-color: #999; color: #999; }
 
         .final-result {
             background: white;
@@ -265,12 +311,12 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
             text-align: center;
             margin-top: 24px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-            border: 1.5px solid #dff0ff;
+            border: 1.5px solid #F0F0F0;
             display: none;
         }
 
-        .final-result h3 { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
-        .final-result .score-big { font-size: 40px; font-weight: 800; color: #2b7fd4; margin: 12px 0; }
+        .final-result h3 { font-size: 22px; font-weight: 700; color: #111; margin-bottom: 8px; }
+        .final-result .score-big { font-size: 40px; font-weight: 800; color: #333; margin: 12px 0; }
         .final-result p { color: #888; font-size: 14px; }
 
         .final-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
@@ -286,8 +332,8 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
             border: none;
         }
 
-        .btn-new { background: #e6f4ff; color: #2b7fd4; }
-        .btn-new:hover { background: #cce8ff; }
+        .btn-new { background: #F5F5F5; color: #333; }
+        .btn-new:hover { background: #f0f0f0; }
 
         .loading-overlay {
             display: none;
@@ -306,14 +352,14 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
         .spinner {
             width: 44px;
             height: 44px;
-            border: 4px solid #dff0ff;
-            border-top-color: #4facfe;
+            border: 4px solid #F0F0F0;
+            border-top-color: #333;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { font-size: 15px; color: #2b7fd4; font-weight: 600; }
+        .loading-text { font-size: 15px; color: #333; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -375,7 +421,7 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
         <p id="scoreMsg"></p>
         <div class="final-actions">
             <a href="test.php" class="btn-action btn-new">Nuevo test</a>
-            <a href="historial.php" class="btn-action" style="background:#f0ecff;color:#7c5cbf;">Ver historial</a>
+            <a href="historial.php" class="btn-action" style="background:#F5F5F5;color:#444;">Ver historial</a>
         </div>
     </div>
 
@@ -451,3 +497,7 @@ Donde \"correcta\" es el índice (0-3) de la opción correcta.";
 
 </body>
 </html>
+
+
+
+

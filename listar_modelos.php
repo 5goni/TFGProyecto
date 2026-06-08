@@ -1,5 +1,40 @@
 <?php
-$apiKey = 'AIzaSyBuCCzzEbuf5kFdaH5q8LR9qW69G_plzEs';
+/**
+ * ============================================================================
+ * ARCHIVO: listar_modelos.php
+ * ============================================================================
+ * PROPÓSITO:
+ *   Herramienta de diagnóstico que lista todos los modelos de IA disponibles
+ *   en la cuenta de Google Generative Language API.
+ *   Útil para verificar que la API Key sea válida y explorar qué modelos
+ *   están disponibles para generar contenido.
+ *
+ * FUNCIONALIDAD CLAVE:
+ *   - Requiere api_key.php para obtener la clave de API
+ *   - Realiza petición HTTP GET a Google Generative Language API
+ *   - Filtra solo modelos que soportan 'generateContent'
+ *   - Muestra ID, nombre y descripción de cada modelo
+ *   - Útil para debugging y verificación de configuración
+ *
+ * RESPUESTA:
+ *   Muestra lista en formato <pre> con:
+ *   - ID: nombre del modelo (ej: models/gemini-2.5-flash)
+ *   - Descripción: información del modelo
+ *
+ * DEPENDENCIAS:
+ *   - api_key.php (clave de API)
+ *   - cURL habilitado en PHP
+ *   - Conexión a internet
+ *
+ * NOTAS:
+ *   - Página de diagnóstico (no está integrada en la app)
+ *   - Acceso directo: http://localhost/tfg/TFG/listar_modelos.php
+ *
+ * ============================================================================
+ */
+
+require_once 'api_key.php';
+$apiKey = API_KEY;
 $url = "https://generativelanguage.googleapis.com/v1beta/models?key=" . $apiKey;
 
 $ch = curl_init($url);

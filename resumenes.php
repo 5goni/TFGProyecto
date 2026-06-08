@@ -1,6 +1,49 @@
-<?php
+﻿<?php
+/**
+ * ============================================================================
+ * ARCHIVO: resumenes.php
+ * ============================================================================
+ * PROPÓSITO:
+ *   Genera resúmenes académicos completos basados en un tema usando IA Gemini.
+ *   Permite a usuarios resumir información de forma rápida y estructurada.
+ *
+ * FUNCIONALIDAD CLAVE:
+ *   - Valida autenticación del usuario
+ *   - Genera resúmenes detallados y bien estructurados
+ *   - Soporta entrada de texto (tema) o archivo adjunto para análisis
+ *   - Respuesta con formato markdown (incluye **negritas** para términos clave)
+ *   - Almacena resúmenes en tabla 'historial' con tipo 'resumen'
+ *   - Limpia caracteres especiales y separadores innecesarios
+ *   - Interfaz para visualizar y editar resúmenes generados
+ *   - Opción de publicar en librería compartida
+ *
+ * INSTRUCCIONES AL MODELO:
+ *   - No saludar ni dar introducciones
+ *   - Iniciar directamente con contenido
+ *   - Usar párrafos bien organizados
+ *   - Destacar conceptos clave en **negrita**
+ *   - Evitar líneas horizontales y saltos de línea excesivos
+ *
+ * FLUJO DE DATOS:
+ *   1. Usuario envía tema (texto o archivo)
+ *   2. Sistema solicita resumen a Gemini
+ *   3. Se extrae y limpia respuesta
+ *   4. Se almacena en tabla historial
+ *   5. Se muestra resumen generado en interfaz
+ *   6. Usuario puede guardar, descargar o publicar
+ *
+ * DEPENDENCIAS:
+ *   - conn.php (conexión a BD)
+ *   - api_key.php (clave de Gemini)
+ *   - Session activa
+ *   - API Gemini
+ *
+ * ============================================================================
+ */
+
 session_start();
 include 'conn.php';
+require_once 'api_key.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
@@ -13,7 +56,7 @@ $resumen = null;
 $temaGenerado = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
-    $apiKey = 'AIzaSyBuCCzzEbuf5kFdaH5q8LR9qW69G_plzEs';
+    $apiKey = API_KEY;
     $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
 
     $systemPrompt = "Eres un profesor experto. No saludes, no des introducciones, no escribas frases como 'Aquí tienes un resumen' ni 'A continuación' ni nada similar. No uses separadores como --- ni líneas horizontales. Empieza directamente con el contenido del resumen. El resumen debe ser claro, estructurado y completo, tan largo como sea necesario pero sin información irrelevante. Usa párrafos bien organizados. Usa **negrita** alrededor de los conceptos clave, términos importantes y datos relevantes. Tambien evita usar saltos de lineas que sean excesivos";
@@ -72,13 +115,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6fb;
+            background: #F4F4F4;
             min-height: 100vh;
         }
 
         .topbar {
             background: white;
-            border-bottom: 1px solid #e8eaf0;
+            border-bottom: 1px solid #E0E0E0;
             padding: 0 32px;
             height: 60px;
             display: flex;
@@ -98,9 +141,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
             color: #888;
         }
 
-        .topbar-logo { font-size: 18px; font-weight: 700; color: #667eea; text-decoration: none; }
+        .topbar-logo { font-size: 18px; font-weight: 700; color: #333; text-decoration: none; }
         .topbar-sep { color: #ccc; }
-        .topbar-link { color: #667eea; text-decoration: none; }
+        .topbar-link { color: #333; text-decoration: none; }
         .topbar-link:hover { text-decoration: underline; }
         .topbar-current { color: #555; font-weight: 500; }
 
@@ -109,15 +152,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
 
         .btn-outline {
             font-size: 13px;
-            color: #667eea;
+            color: #333;
             text-decoration: none;
             padding: 6px 14px;
-            border: 1px solid #667eea;
+            border: 1px solid #333;
             border-radius: 6px;
             transition: 0.2s;
         }
 
-        .btn-outline:hover { background: #667eea; color: white; }
+        .btn-outline:hover { background: #333; color: white; }
 
         .page-wrapper {
             max-width: 800px;
@@ -126,8 +169,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
         }
 
         .page-header { margin-bottom: 32px; }
-        .page-header h1 { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
-        .page-header p { color: #7a7a9a; font-size: 14px; }
+        .page-header h1 { font-size: 26px; font-weight: 700; color: #111; margin-bottom: 6px; }
+        .page-header p { color: #555; font-size: 14px; }
 
         .form-card {
             background: white;
@@ -135,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
             padding: 32px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.07);
             margin-bottom: 28px;
-            border: 1.5px solid #e8e4ff;
+            border: 1.5px solid #F0F0F0;
         }
 
         .form-label {
@@ -149,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
         .form-input {
             width: 100%;
             padding: 12px 14px;
-            border: 1.5px solid #e0e0f0;
+            border: 1.5px solid #e0e0e0;
             border-radius: 8px;
             font-size: 15px;
             font-family: inherit;
@@ -161,29 +204,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
 
         .form-input:focus {
             outline: none;
-            border-color: #9c82f5;
+            border-color: #444;
             background: white;
         }
 
         .file-zone {
             margin-top: 16px;
             padding: 16px;
-            border: 2px dashed #e0e0f0;
+            border: 2px dashed #e0e0e0;
             border-radius: 8px;
             text-align: center;
-            color: #aaa;
+            color: #888;
             font-size: 13px;
             transition: border-color 0.2s;
         }
 
-        .file-zone:hover { border-color: #9c82f5; }
+        .file-zone:hover { border-color: #444; }
         .file-zone input { display: block; margin: 8px auto 0; }
 
         .btn-primary {
             margin-top: 20px;
             width: 100%;
             padding: 13px;
-            background: linear-gradient(135deg, #9c82f5, #667eea);
+            background: #111;
             color: white;
             border: none;
             border-radius: 8px;
@@ -201,19 +244,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
             border-radius: 14px;
             padding: 32px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-            border: 1.5px solid #e8e4ff;
+            border: 1.5px solid #F0F0F0;
         }
 
         .result-card h2 {
             font-size: 18px;
             font-weight: 700;
-            color: #7c5cbf;
+            color: #444;
             margin-bottom: 6px;
         }
 
         .result-tema {
             font-size: 13px;
-            color: #aaa;
+            color: #888;
             margin-bottom: 20px;
         }
 
@@ -244,8 +287,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
             border: none;
         }
 
-        .btn-again { background: #f0ecff; color: #7c5cbf; }
-        .btn-again:hover { background: #e0d8ff; }
+        .btn-again { background: #F5F5F5; color: #444; }
+        .btn-again:hover { background: #f0f0f0; }
 
         .loading-overlay {
             display: none;
@@ -264,15 +307,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
         .spinner {
             width: 44px;
             height: 44px;
-            border: 4px solid #e8e4ff;
-            border-top-color: #9c82f5;
+            border: 4px solid #F0F0F0;
+            border-top-color: #444;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .loading-text { font-size: 15px; color: #7c5cbf; font-weight: 600; }
+        .loading-text { font-size: 15px; color: #444; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -330,7 +373,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
         ?></div>
         <div class="result-actions">
             <a href="resumenes.php" class="btn-action btn-again">Generar otro resumen</a>
-            <a href="historial.php" class="btn-action" style="background:#f0ecff;color:#7c5cbf;">Ver historial</a>
+            <a href="historial.php" class="btn-action" style="background:#F5F5F5;color:#444;">Ver historial</a>
         </div>
     </div>
     <?php endif; ?>
@@ -338,3 +381,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
 
 </body>
 </html>
+
+
+

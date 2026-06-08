@@ -1,6 +1,50 @@
-<?php
+﻿<?php
+/**
+ * ============================================================================
+ * ARCHIVO: mapa_conceptual.php
+ * ============================================================================
+ * PROPÓSITO:
+ *   Genera mapas conceptuales visuales basados en un tema usando la IA Gemini.
+ *   Permite a usuarios crear representaciones gráficas jerárquicas de conceptos.
+ *
+ * FUNCIONALIDAD CLAVE:
+ *   - Valida autenticación del usuario
+ *   - Genera mapas conceptuales con nodo central + 4-8 ramas principales
+ *   - Cada rama contiene 2-4 subnodos (conceptos relacionados)
+ *   - Respuesta en formato JSON estructurado
+ *   - Almacena mapas en tabla 'historial' con tipo 'mapa'
+ *   - Interfaz de visualización interactiva del mapa
+ *   - Manejo de errores y validaciones API
+ *
+ * ESTRUCTURA DEL MAPA:
+ *   {
+ *     "centro": "Tema Principal",
+ *     "ramas": [
+ *       {"titulo": "Rama 1", "subnodos": [...]},
+ *       {"titulo": "Rama 2", "subnodos": [...]}
+ *     ]
+ *   }
+ *
+ * FLUJO DE DATOS:
+ *   1. Usuario envía tema
+ *   2. Sistema solicita a Gemini generar mapa
+ *   3. Gemini responde con JSON entre MAPA_START y MAPA_END
+ *   4. Se valida estructura JSON
+ *   5. Se almacena en tabla historial
+ *   6. Se muestra mapa visualizado en interfaz
+ *
+ * DEPENDENCIAS:
+ *   - conn.php (conexión a BD)
+ *   - api_key.php (clave de Gemini)
+ *   - Session activa
+ *   - API Gemini
+ *
+ * ============================================================================
+ */
+
 session_start();
 include 'conn.php';
+require_once 'api_key.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
@@ -11,12 +55,13 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
 $user_id = $_SESSION['user_id'];
 $mapaData = null;
 $temaGenerado = null;
+$errorMsg = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tema'])) {
-    $apiKey = 'AIzaSyBuCCzzEbuf5kFdaH5q8LR9qW69G_plzEs';
+    $apiKey = API_KEY;
     $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
 
-    $systemPrompt = "Eres un profesor experto en crear mapas conceptuales. No saludes. Genera un mapa conceptual estructurado sobre el tema solicitado. El mapa debe tener un nodo central y entre 4-8 ramas principales, cada una con 2-4 subnodos. Responde ÚNICAMENTE con este formato JSON y nada más:
+    $systemPrompt = "Eres un profesor experto en crear mapas conceptuales. No saludes. Genera un mapa conceptual estructurado sobre el tema solicitado. El mapa debe tener un nodo central y entre 4-8 ramas principales, cada una con 2-4 subnodos. Responde ÃšNICAMENTE con este formato JSON y nada más:
 MAPA_START
 {\"centro\":\"Tema Central\",\"ramas\":[{\"titulo\":\"Rama 1\",\"subnodos\":[\"Concepto A\",\"Concepto B\",\"Concepto C\"]},{\"titulo\":\"Rama 2\",\"subnodos\":[\"Concepto D\",\"Concepto E\"]}]}
 MAPA_END";
@@ -35,24 +80,42 @@ MAPA_END";
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     $response = curl_exec($ch);
+    if ($response === false) {
+        $errorMsg = 'Error de conexión: ' . curl_error($ch);
+    }
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
     $result = json_decode($response, true);
+    if ($result === null && json_last_error() !== JSON_ERROR_NONE) {
+        $errorMsg = 'Respuesta inválida de la API: ' . json_last_error_msg();
+    }
 
-    if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
+    if (!$errorMsg && isset($result['candidates'][0]['content']['parts'][0]['text'])) {
         $rawText = $result['candidates'][0]['content']['parts'][0]['text'];
-        preg_match('/MAPA_START(.*?)MAPA_END/s', $rawText, $match);
-        if (isset($match[1])) {
-            $mapaData = json_decode(trim($match[1]), true);
+        $mapaData = null;
 
-            if ($mapaData) {
-                $jsonGuardar = json_encode($mapaData, JSON_UNESCAPED_UNICODE);
-                $stmt = $conn->prepare("INSERT INTO historial (user_id, pregunta, resumen, tipo, contenido_json) VALUES (?, ?, '', 'mapa', ?)");
+        if (preg_match('/MAPA_START\s*(\{.*?\})\s*MAPA_END/s', $rawText, $match)) {
+            $mapaData = json_decode(trim($match[1]), true);
+        } else {
+            $mapaData = json_decode(trim($rawText), true);
+        }
+
+        if ($mapaData && isset($mapaData['centro']) && isset($mapaData['ramas']) && is_array($mapaData['ramas'])) {
+            $jsonGuardar = json_encode($mapaData, JSON_UNESCAPED_UNICODE);
+            $stmt = $conn->prepare("INSERT INTO historial (user_id, pregunta, resumen, tipo, contenido_json) VALUES (?, ?, '', 'mapa', ?)");
+            if ($stmt) {
                 $stmt->bind_param("iss", $user_id, $temaGenerado, $jsonGuardar);
                 $stmt->execute();
                 $stmt->close();
             }
+        } else {
+            $errorMsg = 'JSON de mapa inválido o incompleto. Respuesta: ' . htmlspecialchars($rawText);
         }
+    } elseif (!$errorMsg && isset($result['error']['message'])) {
+        $errorMsg = 'Error de la API: ' . $result['error']['message'];
+    } elseif (!$errorMsg) {
+        $errorMsg = 'No se recibió contenido válido de la API.';
     }
 }
 ?>
@@ -67,13 +130,13 @@ MAPA_END";
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6fb;
+            background: #F4F4F4;
             min-height: 100vh;
         }
 
         .topbar {
             background: white;
-            border-bottom: 1px solid #e8eaf0;
+            border-bottom: 1px solid #E0E0E0;
             padding: 0 32px;
             height: 60px;
             display: flex;
@@ -86,9 +149,9 @@ MAPA_END";
         }
 
         .topbar-left { display: flex; align-items: center; gap: 12px; font-size: 14px; color: #888; }
-        .topbar-logo { font-size: 18px; font-weight: 700; color: #667eea; text-decoration: none; }
+        .topbar-logo { font-size: 18px; font-weight: 700; color: #333; text-decoration: none; }
         .topbar-sep { color: #ccc; }
-        .topbar-link { color: #667eea; text-decoration: none; }
+        .topbar-link { color: #333; text-decoration: none; }
         .topbar-link:hover { text-decoration: underline; }
         .topbar-current { color: #555; font-weight: 500; }
         .topbar-right { display: flex; align-items: center; gap: 12px; }
@@ -96,27 +159,27 @@ MAPA_END";
 
         .btn-outline {
             font-size: 13px;
-            color: #b97a00;
+            color: #888;
             text-decoration: none;
             padding: 6px 14px;
-            border: 1px solid #b97a00;
+            border: 1px solid #888;
             border-radius: 6px;
             transition: 0.2s;
         }
 
-        .btn-outline:hover { background: #b97a00; color: white; }
+        .btn-outline:hover { background: #888; color: white; }
 
         .page-wrapper { max-width: 1000px; margin: 0 auto; padding: 48px 24px; }
         .page-header { margin-bottom: 32px; }
-        .page-header h1 { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
-        .page-header p { color: #7a7a9a; font-size: 14px; }
+        .page-header h1 { font-size: 26px; font-weight: 700; color: #111; margin-bottom: 6px; }
+        .page-header p { color: #555; font-size: 14px; }
 
         .form-card {
             background: white;
             border-radius: 14px;
             padding: 32px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-            border: 1.5px solid #fff0dc;
+            border: 1.5px solid #F5F5F5;
         }
 
         .form-label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 8px; }
@@ -124,7 +187,7 @@ MAPA_END";
         .form-input {
             width: 100%;
             padding: 12px 14px;
-            border: 1.5px solid #e0e0f0;
+            border: 1.5px solid #e0e0e0;
             border-radius: 8px;
             font-size: 15px;
             font-family: inherit;
@@ -134,13 +197,13 @@ MAPA_END";
             resize: vertical;
         }
 
-        .form-input:focus { outline: none; border-color: #f5a623; background: white; }
+        .form-input:focus { outline: none; border-color: #999; background: white; }
 
         .btn-primary {
             margin-top: 20px;
             width: 100%;
             padding: 13px;
-            background: linear-gradient(135deg, #f5a623, #b97a00);
+            background: #111;
             color: white;
             border: none;
             border-radius: 8px;
@@ -157,13 +220,13 @@ MAPA_END";
             background: white;
             border-radius: 14px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-            border: 1.5px solid #fff0dc;
+            border: 1.5px solid #F5F5F5;
             overflow: hidden;
         }
 
         .map-toolbar {
             padding: 16px 24px;
-            border-bottom: 1px solid #f5f5f5;
+            border-bottom: 1px solid #F5F5F5;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -171,8 +234,8 @@ MAPA_END";
             gap: 12px;
         }
 
-        .map-toolbar h2 { font-size: 16px; font-weight: 700; color: #1a1a2e; }
-        .map-toolbar p { font-size: 13px; color: #aaa; margin-top: 2px; }
+        .map-toolbar h2 { font-size: 16px; font-weight: 700; color: #111; }
+        .map-toolbar p { font-size: 13px; color: #888; margin-top: 2px; }
 
         .toolbar-actions { display: flex; gap: 8px; }
 
@@ -188,8 +251,8 @@ MAPA_END";
             display: inline-block;
         }
 
-        .tb-btn-orange { background: #fff7e6; color: #b97a00; }
-        .tb-btn-orange:hover { background: #ffefcc; }
+        .tb-btn-orange { background: #F5F5F5; color: #888; }
+        .tb-btn-orange:hover { background: #f5f5f5; }
 
         #mapCanvas {
             display: block;
@@ -208,10 +271,10 @@ MAPA_END";
         .branch-title {
             font-size: 15px;
             font-weight: 700;
-            color: #b97a00;
+            color: #888;
             margin-bottom: 8px;
             padding: 8px 14px;
-            background: #fff7e6;
+            background: #F5F5F5;
             border-radius: 8px;
             display: inline-block;
         }
@@ -225,8 +288,8 @@ MAPA_END";
         }
 
         .subnode-chip {
-            background: #f4f6fb;
-            border: 1px solid #e0e0f0;
+            background: #F4F4F4;
+            border: 1px solid #e0e0e0;
             border-radius: 20px;
             padding: 5px 14px;
             font-size: 13px;
@@ -250,14 +313,14 @@ MAPA_END";
         .spinner {
             width: 44px;
             height: 44px;
-            border: 4px solid #fff0dc;
-            border-top-color: #f5a623;
+            border: 4px solid #F5F5F5;
+            border-top-color: #999;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { font-size: 15px; color: #b97a00; font-weight: 600; }
+        .loading-text { font-size: 15px; color: #888; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -295,6 +358,11 @@ MAPA_END";
             <button type="submit" class="btn-primary" id="btnSubmit">Generar mapa conceptual</button>
         </form>
     </div>
+    <?php if ($errorMsg): ?>
+    <div style="margin-top:20px;padding:18px;background:#f5f5f5;border:1px solid #ccc;color:#111;border-radius:12px;">
+        <strong>Error:</strong> <?php echo htmlspecialchars($errorMsg); ?>
+    </div>
+    <?php endif; ?>
 
     <?php elseif ($mapaData): ?>
     <div class="map-container">
@@ -330,8 +398,8 @@ MAPA_END";
         let showingList = false;
 
         const branchColors = [
-            '#f5a623', '#667eea', '#43d98e', '#f5576c',
-            '#4facfe', '#a855f7', '#f97316', '#06b6d4'
+            '#999', '#333', '#333', '#999',
+            '#333', '#444', '#888', '#333'
         ];
 
         function toggleView() {
@@ -347,6 +415,9 @@ MAPA_END";
             const W = container.clientWidth;
 
             const ramas = mapaData.ramas;
+            if (!Array.isArray(ramas) || ramas.length === 0) {
+                return;
+            }
             const maxSubnodes = Math.max(...ramas.map(r => r.subnodos.length));
             const rowsNeeded = Math.ceil(ramas.length / 2);
             const H = Math.max(520, rowsNeeded * 220 + 120);
@@ -398,7 +469,7 @@ MAPA_END";
             ctx.shadowColor = 'rgba(0,0,0,0.12)';
             ctx.shadowBlur = 14;
             drawRoundRect(ctx, cx - centerW/2, cy - centerH/2, centerW, centerH, 12);
-            ctx.fillStyle = '#1a1a2e';
+            ctx.fillStyle = '#111';
             ctx.fill();
             ctx.shadowBlur = 0;
 
@@ -497,10 +568,12 @@ MAPA_END";
     <div style="background:white;border-radius:14px;padding:32px;text-align:center;color:#888;">
         No se pudo generar el mapa. Inténtalo de nuevo.
         <br><br>
-        <a href="mapa_conceptual.php" style="color:#b97a00;font-weight:600;">Volver a intentarlo</a>
+        <a href="mapa_conceptual.php" style="color:#888;font-weight:600;">Volver a intentarlo</a>
     </div>
     <?php endif; ?>
 </div>
 
 </body>
 </html>
+
+

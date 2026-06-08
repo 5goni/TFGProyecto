@@ -1,0 +1,68 @@
+/*
+ * ============================================================================
+ * ARCHIVO: diagrama_secuencia_logout.md
+ * ============================================================================
+ * PROPÓSITO:
+ *   Diagrama de secuencia (UML) que visualiza el proceso de cierre de sesión
+ *   (logout) de un usuario en la plataforma EduIA. Muestra cómo se invalida
+ *   la sesión y se redirige al usuario al formulario de login.
+ *
+ * PARTICIPANTES (Actores):
+ *   1. Usuario: Persona logueada que desea cerrar sesión
+ *   2. Navegador: Cliente web (recibe y ejecuta acciones)
+ *   3. Servidor: Backend PHP (maneja logout)
+ *
+ * FLUJO DEL LOGOUT (Paso a Paso):
+ *   1. Usuario -> Navegador: Hacer clic en \"Cerrar sesión\"
+ *      - El usuario elige el botón/enlace de logout en la interfaz
+ *   
+ *   2. Navegador -> Servidor: Enviar solicitud de logout
+ *      - GET o POST a logout.php o similar
+ *      - Puede incluir token CSRF para seguridad
+ *   
+ *   3. Servidor -> Servidor: Invalidar sesión
+ *      - session_destroy() - destruye archivo de sesión
+ *      - O: unset($_SESSION) - limpia variables de sesión
+ *      - Elimina datos: user_id, username, etc.
+ *   
+ *   4. Servidor -> Navegador: Confirmar logout
+ *      - Envía respuesta con confirmación (HTTP 200)
+ *   
+ *   5. Navegador -> Usuario: Mostrar sesión cerrada
+ *      - Muestra mensaje: \"Sesión cerrada exitosamente\"
+ *   
+ *   6. Navegador -> Navegador: Redirigir a página de login
+ *      - setTimeout() o window.location = 'index.php'
+ *      - Usuario regresa a página de autenticación
+ *
+ * ESTADOS DE SESIÓN:
+ *   - ANTES: $_SESSION contiene user_id, username, etc.
+ *   - DURANTE: session_destroy() se ejecuta en servidor
+ *   - DESPUÉS: $_SESSION está vacía, usuario no autenticado
+ *
+ * SEGURIDAD:
+ *   - session_destroy() elimina completamente la sesión
+ *   - Cookies de sesión se invalidan
+ *   - Cliente no puede acceder a datos de sesión
+ *   - Tokens CSRF validados (si se implementa)
+ *   - No se muestra información sensible en logout
+ *
+ * DIFERENCIA CON LOGIN:
+ *   - Login: Crea sesión después de validar credenciales
+ *   - Logout: Destruye sesión sin validación (ya está autenticado)
+ *   - Login: Requiere ir a BD para verificar contraseña
+ *   - Logout: No requiere acceso a BD (solo destruir sesión)
+ *
+ * ARCHIVOS RELACIONADOS:
+ *   - logout.php o similar: Manejador de logout
+ *   - En _livechat/logout.php existe el handler
+ *   - conn.php: Conexión a BD (no se usa en logout)
+ *   - index.php: Página a la que se redirige
+ *
+ * CASOS DE ERROR:
+ *   - Usuario cierra navegador sin logout: Sesión expira automáticamente
+ *   - Timeout de inactividad: Servidor invalida sesión después de X minutos
+ *   - Usuario fuerza navegación: Código verifica $_SESSION en cada página
+ *
+ * DIAGRAMA MERMAID:
+ *   - Formato: sequenceDiagram\n *   - Tipo: Muestra flujo lineal y directo (sin ramificaciones)\n *   - Más simple que login (no hay alternativas si/no)\n *   - Enfoque: Mostrar rapidez y simplicidad del logout\n *\n * ============================================================================\n */

@@ -1,34 +1,150 @@
+﻿<!-- 
+  ============================================================================
+  ARCHIVO: index.html
+  ============================================================================
+  PROPÓSITO:
+    Landing page estática inicial de la plataforma EduIA. Página de primer 
+    contacto para nuevos usuarios sin autenticación.
+  
+  FUNCIONALIDAD CLAVE:
+    - Presentación de la plataforma (título, descripción)
+    - Formulario de envío de consultas iniciales
+    - Opción para subir documento (PDF, DOC, etc.)
+    - Botón de acceso a historial (requiere sesión)
+    - Interfaz simple y atractiva
+    - Estilos responsive para móviles y desktop
+  
+  ELEMENTOS PRINCIPALES:
+    1. Tarjeta principal con logo de LibroIA
+    2. Descripción de la herramienta
+    3. Textarea para consulta del usuario
+    4. Input file para subir documento
+    5. Botón de envío
+    6. Botón de acceso a historial (modal/popup)
+  
+  FLUJO DEL USUARIO:
+    1. Accede a index.html
+    2. Ve descripción de la plataforma
+    3. Ingresa tema o sube archivo
+    4. Hace clic en botón de envío
+    5. Se redirige a página de procesamiento (probablemente resumenes.php)
+  
+  NOTA:
+    - Esta es una versión simplificada para primer contacto
+    - Usuarios autenticados ven index.php o main.php en lugar de esta página
+    - No requiere sesión activa
+  
+  ============================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistente de estudio</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eceff1; display: flex; justify-content: center; padding: 40px; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 550px; position: relative; }
-        h2 { color: #1a73e8; text-align: center; }
-        textarea { width: 100%; height: 120px; padding: 12px; border: 1px solid #cfd8dc; border-radius: 8px; resize: none; box-sizing: border-box; font-size: 15px; }
-        .file-input { margin: 20px 0; padding: 15px; border: 2px dashed #bbdefb; border-radius: 8px; text-align: center; }
-        button { width: 100%; background: #1a73e8; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
-        button:hover { background: #1557b0; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #F4F4F4; 
+            display: flex; 
+            justify-content: center; 
+            padding: 40px 20px; 
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 550px; 
+            position: relative; 
+        }
+        h2 { 
+            color: #111; 
+            text-align: center; 
+            font-size: 24px;
+        }
+        textarea { 
+            width: 100%; 
+            height: 120px; 
+            padding: 12px; 
+            border: 1px solid #CCC; 
+            border-radius: 8px; 
+            resize: none; 
+            box-sizing: border-box; 
+            font-size: 15px; 
+        }
+        .file-input { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 2px dashed #CCC; 
+            border-radius: 8px; 
+            text-align: center; 
+        }
+        button { 
+            width: 100%; 
+            background: #111; 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-bottom: 10px; 
+        }
+        button:hover { 
+            background: #111; 
+        }
         
         /* Estilo para el acceso directo al historial */
         .btn-historial { 
             display: block; 
             text-align: center; 
             text-decoration: none; 
-            color: #546e7a; 
+            color: #555; 
             font-size: 14px; 
             font-weight: bold; 
             padding: 10px; 
-            border: 1px solid #cfd8dc; 
+            border: 1px solid #CCC; 
             border-radius: 8px; 
             transition: 0.2s; 
         }
         .btn-historial:hover { 
-            background: #f5f5f5; 
-            color: #1a73e8; 
-            border-color: #1a73e8; 
+            background: #F5F5F5; 
+            color: #111; 
+            border-color: #111; 
+        }
+
+        /* Media queries para móviles */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            .card {
+                padding: 20px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+            textarea {
+                font-size: 14px;
+                height: 100px;
+            }
+            .file-input {
+                padding: 10px;
+            }
+            button {
+                padding: 12px;
+                font-size: 14px;
+            }
+            .btn-historial {
+                font-size: 12px;
+                padding: 8px;
+            }
         }
     </style>
 </head>
@@ -39,12 +155,12 @@
             <textarea name="pregunta" placeholder="Escribe tu duda o instrucciones aquí... "></textarea>
             <div class="file-input">
                 <input type="file" name="archivo">
-                <p style="font-size: 12px; color: #546e7a;">Sube una imagen, PDF o código para analizar</p>
+                <p style="font-size: 12px; color: #555;">Sube una imagen, PDF o código para analizar</p>
             </div>
             <button type="submit">Ejecutar Prompt</button>
         </form>
         
-        <a href="historial.php" class="btn-historial">📜 Ver Historial de Preguntas</a>
+        <a href="historial.php" class="btn-historial">📝 Ver Historial de Preguntas</a>
     </div>
 </body>
 </html>

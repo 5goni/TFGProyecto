@@ -1,4 +1,51 @@
 <?php
+/**
+ * ============================================================================
+ * ARCHIVO: index.php
+ * ============================================================================
+ * PROPÓSITO:
+ *   Página principal de la aplicación con landing page y sistema de autenticación.
+ *   Sirve como punto de entrada a la plataforma EduIA.
+ *
+ * FUNCIONALIDAD CLAVE:
+ *   - Página de inicio con información sobre la plataforma
+ *   - Sistema de login integrado (HTML + formulario)
+ *   - Sistema de registro integrado
+ *   - Redirecciona a estudio.php si ya está autenticado
+ *   - Muestra características principales de la plataforma
+ *   - Interfaz responsive con botones de acción
+ *   - Gestión de errores de autenticación
+ *
+ * VERIFICACIÓN:
+ *   - Si usuario está logueado: redirige a estudio.php o muestra dashboard
+ *   - Si no está logueado: muestra landing page + formularios de login/registro
+ *
+ * ELEMENTOS DE PÁGINA:
+ *   1. Header/Topbar con logo y botones de login
+ *   2. Sección Hero con proposición de valor
+ *   3. Sección de características principales
+ *   4. Modales/formularios para login y registro
+ *   5. Llamadas a la acción (CTA)
+ *   6. Footer con información
+ *
+ * FLUJO DE USUARIOS:
+ *   - Usuarios nuevos: ven landing page + botón de registro
+ *   - Usuarios existentes: ven login + enlace a recuperación
+ *   - Usuarios autenticados: redireccionados a dashboard
+ *
+ * DEPENDENCIAS:
+ *   - conn.php (conexión a BD)
+ *   - Session activa
+ *   - Backend de autenticación (probablemente en archivo separado)
+ *
+ * VARIABLES DE SESIÓN:
+ *   - $_SESSION['user_id']: ID del usuario logueado
+ *   - $_SESSION['username']: Nombre de usuario
+ *   - $_SESSION['error']: Mensaje de error (si aplica)
+ *
+ * ============================================================================
+ */
+
 session_start();
 include 'conn.php';
 
@@ -22,19 +69,20 @@ if (isset($_SESSION['error'])) {
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6fb;
+            background: #f4f4f4;
             min-height: 100vh;
+            color: #111;
         }
 
         .topbar {
             background: white;
-            border-bottom: 1px solid #e8eaf0;
+            border-bottom: 1px solid #d6d6d6;
             padding: 0 40px;
             height: 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            box-shadow: 0 1px 8px rgba(0,0,0,0.08);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -43,7 +91,7 @@ if (isset($_SESSION['error'])) {
         .topbar-logo {
             font-size: 20px;
             font-weight: 800;
-            color: #667eea;
+            color: #111;
             letter-spacing: -0.5px;
         }
 
@@ -51,12 +99,12 @@ if (isset($_SESSION['error'])) {
 
         .topbar-user {
             font-size: 14px;
-            color: #666;
-            font-weight: 500;
+            color: #333;
+            font-weight: 600;
         }
 
         .btn-primary-sm {
-            background: #667eea;
+            background: #111;
             color: white;
             border: none;
             padding: 8px 18px;
@@ -69,11 +117,11 @@ if (isset($_SESSION['error'])) {
             display: inline-block;
         }
 
-        .btn-primary-sm:hover { background: #5568d4; }
+        .btn-primary-sm:hover { background: #000; }
 
         .btn-danger-sm {
-            background: #fff0f0;
-            color: #c0392b;
+            background: #e8e8e8;
+            color: #111;
             border: none;
             padding: 8px 18px;
             border-radius: 7px;
@@ -85,7 +133,7 @@ if (isset($_SESSION['error'])) {
             display: inline-block;
         }
 
-        .btn-danger-sm:hover { background: #ffd8d8; }
+        .btn-danger-sm:hover { background: #d1d1d1; }
 
         .hero {
             max-width: 860px;
@@ -96,8 +144,8 @@ if (isset($_SESSION['error'])) {
 
         .hero-tag {
             display: inline-block;
-            background: #ede9ff;
-            color: #7c5cbf;
+            background: #e6e6e6;
+            color: #333;
             font-size: 12px;
             font-weight: 700;
             padding: 5px 14px;
@@ -110,17 +158,17 @@ if (isset($_SESSION['error'])) {
         .hero h1 {
             font-size: 44px;
             font-weight: 800;
-            color: #1a1a2e;
+            color: #111;
             line-height: 1.2;
             margin-bottom: 18px;
             letter-spacing: -1px;
         }
 
-        .hero h1 span { color: #667eea; }
+        .hero h1 span { color: #111; }
 
         .hero p {
             font-size: 17px;
-            color: #7a7a9a;
+            color: #555;
             line-height: 1.7;
             max-width: 560px;
             margin: 0 auto 36px;
@@ -147,20 +195,20 @@ if (isset($_SESSION['error'])) {
         }
 
         .btn-hero-main {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #111;
             color: white;
-            box-shadow: 0 4px 16px rgba(102,126,234,0.35);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.16);
         }
 
-        .btn-hero-main:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102,126,234,0.4); }
+        .btn-hero-main:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.2); }
 
         .btn-hero-sec {
             background: white;
-            color: #667eea;
-            border: 2px solid #e0daf8;
+            color: #111;
+            border: 2px solid #c4c4c4;
         }
 
-        .btn-hero-sec:hover { border-color: #667eea; background: #f5f2ff; }
+        .btn-hero-sec:hover { border-color: #999; background: #f1f1f1; }
 
         .section {
             max-width: 1060px;
@@ -173,7 +221,7 @@ if (isset($_SESSION['error'])) {
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #bbb;
+            color: #666;
             margin-bottom: 18px;
         }
 
@@ -187,8 +235,8 @@ if (isset($_SESSION['error'])) {
             background: white;
             border-radius: 14px;
             padding: 26px 22px;
-            border: 1.5px solid #f0f0f8;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1.5px solid #d1d1d1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
             text-decoration: none;
             display: block;
@@ -197,15 +245,9 @@ if (isset($_SESSION['error'])) {
 
         .feature-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 28px rgba(0,0,0,0.09);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.16);
+            border-color: #888;
         }
-
-        .feature-card.purple:hover { border-color: #9c82f5; }
-        .feature-card.blue:hover   { border-color: #4facfe; }
-        .feature-card.green:hover  { border-color: #43d98e; }
-        .feature-card.orange:hover { border-color: #f5a623; }
-        .feature-card.pink:hover   { border-color: #f5576c; }
-        .feature-card.teal:hover   { border-color: #06b6d4; }
 
         .feature-icon {
             width: 46px;
@@ -218,23 +260,23 @@ if (isset($_SESSION['error'])) {
             margin-bottom: 14px;
         }
 
-        .feature-icon.purple { background: #f0ecff; }
-        .feature-icon.blue   { background: #e6f4ff; }
-        .feature-icon.green  { background: #e4faf1; }
-        .feature-icon.orange { background: #fff7e6; }
-        .feature-icon.pink   { background: #fff0f3; }
-        .feature-icon.teal   { background: #e0fafb; }
+        .feature-icon.purple { background: #dbdbdb; }
+        .feature-icon.blue   { background: #d2d2d2; }
+        .feature-icon.green  { background: #cbcbcb; }
+        .feature-icon.orange { background: #c4c4c4; }
+        .feature-icon.pink   { background: #bdbdbd; }
+        .feature-icon.teal   { background: #b6b6b6; }
 
         .feature-name {
             font-size: 15px;
             font-weight: 700;
-            color: #1a1a2e;
+            color: #111;
             margin-bottom: 6px;
         }
 
         .feature-desc {
             font-size: 13px;
-            color: #8a8aaa;
+            color: #555;
             line-height: 1.5;
         }
 
@@ -245,12 +287,12 @@ if (isset($_SESSION['error'])) {
             background: white;
             border-radius: 18px;
             padding: 48px 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border: 1.5px solid #ede9ff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1.5px solid #ccc;
         }
 
-        .guest-cta h2 { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; }
-        .guest-cta p { font-size: 15px; color: #7a7a9a; line-height: 1.6; margin-bottom: 28px; }
+        .guest-cta h2 { font-size: 24px; font-weight: 700; color: #111; margin-bottom: 10px; }
+        .guest-cta p { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 28px; }
 
         .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
@@ -266,26 +308,26 @@ if (isset($_SESSION['error'])) {
         }
 
         .btn-cta-main {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #111;
             color: white;
         }
 
-        .btn-cta-main:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-cta-main:hover { opacity: 0.95; transform: translateY(-1px); }
 
         .btn-cta-sec {
-            background: #f4f6fb;
-            color: #667eea;
-            border: 1.5px solid #e0daf8;
+            background: #f1f1f1;
+            color: #111;
+            border: 1.5px solid #c4c4c4;
         }
 
-        .btn-cta-sec:hover { background: #ede9ff; }
+        .btn-cta-sec:hover { background: #e0e0e0; }
 
         /* Auth Modal */
         .auth-modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(20,20,40,0.45);
+            background: rgba(0,0,0,0.55);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -307,7 +349,7 @@ if (isset($_SESSION['error'])) {
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         .auth-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #111;
             color: white;
             padding: 32px 28px 24px;
             text-align: center;
@@ -350,7 +392,7 @@ if (isset($_SESSION['error'])) {
             border-bottom: 2.5px solid transparent;
         }
 
-        .tab-button.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab-button.active { color: #111; border-bottom-color: #111; }
 
         .tab-content { display: none; padding: 24px 28px 28px; }
         .tab-content.active { display: block; }
@@ -368,20 +410,20 @@ if (isset($_SESSION['error'])) {
         .form-group input {
             width: 100%;
             padding: 11px 14px;
-            border: 1.5px solid #e8eaf0;
+            border: 1.5px solid #c4c4c4;
             border-radius: 8px;
             font-size: 14px;
             font-family: inherit;
             transition: border-color 0.2s;
-            background: #fafafa;
+            background: white;
         }
 
-        .form-group input:focus { outline: none; border-color: #667eea; background: white; }
+        .form-group input:focus { outline: none; border-color: #111; background: white; }
 
         .btn-submit {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #111;
             color: white;
             border: none;
             border-radius: 8px;
@@ -395,9 +437,9 @@ if (isset($_SESSION['error'])) {
         .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .error-message {
-            background: #fff0f0;
-            color: #c0392b;
-            border: 1px solid #ffc0c0;
+            background: #ececec;
+            color: #111;
+            border: 1px solid #999;
             padding: 10px 14px;
             border-radius: 8px;
             margin-bottom: 16px;
@@ -461,12 +503,6 @@ if (isset($_SESSION['error'])) {
             <div class="feature-icon orange">🗺️</div>
             <div class="feature-name">Mapa Conceptual</div>
             <div class="feature-desc">Visualiza relaciones entre ideas en un mapa interactivo.</div>
-        </a>
-
-        <a href="_livechat/index.php" class="feature-card pink">
-            <div class="feature-icon pink">💬</div>
-            <div class="feature-name">Chat</div>
-            <div class="feature-desc">Comunícate con otros estudiantes en tiempo real.</div>
         </a>
 
         <a href="historial.php" class="feature-card teal">

@@ -1,0 +1,45 @@
+/*
+ * ============================================================================
+ * ARCHIVO: diagrama_resumidor_ia.md
+ * ============================================================================
+ * PROPÓSITO:
+ *   Documento que contiene un diagrama de flujo (Mermaid) que visualiza
+ *   el proceso completo de generación de resúmenes usando IA.
+ *   Muestra cómo fluye la información desde el usuario hasta el resumen final.
+ *
+ * DIAGRAMA:
+ *   - Muestra flujo de 7 pasos principales:
+ *     1. Usuario -> Navegador: Solicita resumen
+ *     2. Navegador -> Servidor: Envía documento
+ *     3. Servidor -> Motor IA: Pasa texto a IA
+ *     4. Motor IA -> Resumen: Genera resumen
+ *     5. Resumen -> Servidor: Devuelve resultado
+ *     6. Servidor -> Navegador: Muestra resumen
+ *     7. Navegador -> Usuario: Presenta resumen
+ *
+ * COMPONENTES:
+ *   - Usuario: Iniciador de la acción
+ *   - Navegador: Frontend (cliente)
+ *   - Servidor: Backend PHP (nuestras aplicación)
+ *   - Motor IA: API Gemini de Google
+ *   - Documento: Archivo cargado por usuario
+ *   - Resumen: Contenido generado
+ *
+ * TECNOLOGÍA:
+ *   - Formato: Mermaid (flowchart TD = Top-Down)
+ *   - Renderizado por: Mermaid.js (librería en package.json)
+ *   - Visualización: HTML con <script src="mermaid.min.js"></script>
+ *
+ * ARCHIVOS RELACIONADOS:
+ *   - resumenes.php: Implementación backend
+ *   - pregunta_gemini.php: Implementación alternativa
+ *   - api_key.php: Gestión de clave API
+ *
+ * CÓMO USAR:
+ *   1. Incluir diagrama en documentación
+ *   2. Servir con HTML que carga mermaid.js
+ *   3. Copiar bloque ```mermaid ... ``` en archivo HTML/MD
+ *   4. Mermaid renderiza automáticamente
+ *
+ * ============================================================================
+ */

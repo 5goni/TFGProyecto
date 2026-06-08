@@ -1,4 +1,4 @@
-<?php include 'config.php';
+﻿<?php include 'config.php';
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
     exit;
@@ -24,7 +24,7 @@ $stmt->close();
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6fb;
+            background: #F4F4F4;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -32,7 +32,7 @@ $stmt->close();
 
         .topbar {
             background: white;
-            border-bottom: 1px solid #e8eaf0;
+            border-bottom: 1px solid #E0E0E0;
             padding: 0 32px;
             height: 60px;
             display: flex;
@@ -45,27 +45,27 @@ $stmt->close();
             flex-shrink: 0;
         }
 
-        .topbar-left { display: flex; align-items: center; gap: 12px; font-size: 14px; color: #888; }
-        .topbar-logo { font-size: 18px; font-weight: 700; color: #667eea; text-decoration: none; }
-        .topbar-sep { color: #ccc; }
-        .topbar-link { color: #667eea; text-decoration: none; }
+        .topbar-left { display: flex; align-items: center; gap: 12px; font-size: 14px; color: #666; }
+        .topbar-logo { font-size: 18px; font-weight: 700; color: #111; text-decoration: none; }
+        .topbar-sep { color: #bababa; }
+        .topbar-link { color: #333; text-decoration: none; }
         .topbar-link:hover { text-decoration: underline; }
-        .topbar-current { color: #555; font-weight: 500; }
+        .topbar-current { color: #444; font-weight: 500; }
         .topbar-right { display: flex; align-items: center; gap: 12px; }
-        .topbar-user { font-size: 14px; color: #666; }
+        .topbar-user { font-size: 14px; color: #555; }
 
         .btn-outline {
-            font-size: 13px; color: #667eea; text-decoration: none;
-            padding: 6px 14px; border: 1px solid #667eea; border-radius: 6px; transition: 0.2s;
+            font-size: 13px; color: #333; text-decoration: none;
+            padding: 6px 14px; border: 1px solid #333; border-radius: 6px; transition: 0.2s;
         }
-        .btn-outline:hover { background: #667eea; color: white; }
+        .btn-outline:hover { background: #333; color: white; }
 
         .btn-logout {
-            font-size: 13px; color: #c0392b; text-decoration: none;
-            padding: 6px 14px; border: 1px solid #ffc0c0; border-radius: 6px;
-            background: #fff0f0; transition: 0.2s;
+            font-size: 13px; color: #333; text-decoration: none;
+            padding: 6px 14px; border: 1px solid #c0c0c0; border-radius: 6px;
+            background: #f4f4f4; transition: 0.2s;
         }
-        .btn-logout:hover { background: #ffd8d8; }
+        .btn-logout:hover { background: #e3e3e3; }
 
         .chat-wrapper {
             flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px;
@@ -73,44 +73,44 @@ $stmt->close();
 
         .chat-card {
             background: white; border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1.5px solid #e8eaf0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1.5px solid #E0E0E0;
             width: 100%; max-width: 700px; display: flex; flex-direction: column;
             height: calc(100vh - 130px); max-height: 700px; overflow: hidden;
         }
 
         .chat-header {
-            padding: 16px 20px; border-bottom: 1px solid #f0f0f8;
+            padding: 16px 20px; border-bottom: 1px solid #EAEAEA;
             display: flex; align-items: center; gap: 12px; flex-shrink: 0;
         }
 
         .chat-header-icon {
             width: 38px; height: 38px;
-            background: linear-gradient(135deg, #f5576c, #f093fb);
+            background: #d4d4d4;
             border-radius: 10px; display: flex; align-items: center;
             justify-content: center; font-size: 17px; flex-shrink: 0;
         }
 
-        .chat-header-info h3 { font-size: 15px; font-weight: 700; color: #1a1a2e; }
-        .chat-header-info p  { font-size: 12px; color: #aaa; margin-top: 1px; }
+        .chat-header-info h3 { font-size: 15px; font-weight: 700; color: #111; }
+        .chat-header-info p  { font-size: 12px; color: #888; margin-top: 1px; }
 
         .online-dot {
-            width: 7px; height: 7px; background: #43d98e;
+            width: 7px; height: 7px; background: #555;
             border-radius: 50%; display: inline-block; margin-right: 5px;
         }
 
         #mensajes {
             flex: 1; overflow-y: auto; padding: 18px;
-            display: flex; flex-direction: column; gap: 10px; background: #f9fafc;
+            display: flex; flex-direction: column; gap: 10px; background: #f4f4f4;
         }
 
         #mensajes::-webkit-scrollbar { width: 4px; }
-        #mensajes::-webkit-scrollbar-thumb { background: #e0e0f0; border-radius: 10px; }
+        #mensajes::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 10px; }
 
         .msg-item { display: flex; flex-direction: column; max-width: 74%; }
         .msg-item.mine  { align-self: flex-end;  align-items: flex-end; }
         .msg-item.other { align-self: flex-start; align-items: flex-start; }
 
-        .msg-author { font-size: 11px; font-weight: 700; color: #aaa; margin-bottom: 3px; padding: 0 4px; }
+        .msg-author { font-size: 11px; font-weight: 700; color: #888; margin-bottom: 3px; padding: 0 4px; }
 
         .msg-bubble {
             padding: 10px 14px; border-radius: 14px;
@@ -118,12 +118,12 @@ $stmt->close();
         }
 
         .msg-item.mine  .msg-bubble {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #333;
             color: white; border-bottom-right-radius: 4px;
         }
         .msg-item.other .msg-bubble {
             background: white; color: #333;
-            border: 1px solid #e8eaf0; border-bottom-left-radius: 4px;
+            border: 1px solid #E0E0E0; border-bottom-left-radius: 4px;
         }
 
         .msg-bubble img { max-width: 220px; border-radius: 8px; display: block; margin-top: 6px; cursor: pointer; }
@@ -138,26 +138,26 @@ $stmt->close();
             background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25);
         }
         .msg-item.other .file-preview {
-            background: #f4f6fb; border: 1.5px solid #e8eaf0;
+            background: #F4F4F4; border: 1.5px solid #E0E0E0;
         }
         .file-preview-icon {
             width: 38px; height: 38px; border-radius: 8px; display: flex;
             align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
         }
         .msg-item.mine  .file-preview-icon { background: rgba(255,255,255,0.2); }
-        .msg-item.other .file-preview-icon { background: white; border: 1px solid #e8eaf0; }
+        .msg-item.other .file-preview-icon { background: white; border: 1px solid #E0E0E0; }
         .file-preview-info { flex: 1; min-width: 0; }
         .file-preview-name {
             font-size: 13px; font-weight: 600; white-space: nowrap;
             overflow: hidden; text-overflow: ellipsis; display: block;
         }
         .msg-item.mine  .file-preview-name { color: rgba(255,255,255,0.95); }
-        .msg-item.other .file-preview-name { color: #1a1a2e; }
+        .msg-item.other .file-preview-name { color: #111; }
         .file-preview-size {
             font-size: 11px; margin-top: 2px; display: block;
         }
         .msg-item.mine  .file-preview-size { color: rgba(255,255,255,0.6); }
-        .msg-item.other .file-preview-size { color: #aaa; }
+        .msg-item.other .file-preview-size { color: #888; }
 
         /* Lightbox imagen */
         .lightbox {
@@ -179,7 +179,7 @@ $stmt->close();
             border: 1.5px solid rgba(255,255,255,0.3); max-width: 280px;
         }
 
-        .msg-item.other .adj-card { border-color: #e8eaf0; }
+        .msg-item.other .adj-card { border-color: #E0E0E0; }
 
         .adj-header {
             display: flex; align-items: center; gap: 8px;
@@ -187,7 +187,7 @@ $stmt->close();
         }
 
         .msg-item.mine  .adj-header { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); }
-        .msg-item.other .adj-header { background: #f4f6fb; color: #555; }
+        .msg-item.other .adj-header { background: #F4F4F4; color: #555; }
 
         .adj-body { padding: 10px 12px; font-size: 13px; }
         .msg-item.mine  .adj-body { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.95); }
@@ -199,69 +199,72 @@ $stmt->close();
         /* Barra de adjunto pendiente */
         .pending-adjunto {
             display: none; align-items: center; gap: 10px;
-            padding: 8px 14px; background: #f0ecff; border-top: 1px solid #e0d8f8;
+            padding: 8px 14px; background: #ebebeb; border-top: 1px solid #d5d5d5;
             flex-shrink: 0;
         }
 
         .pending-adjunto.visible { display: flex; }
 
         .pending-adjunto-icon { font-size: 18px; flex-shrink: 0; }
+        .pending-adjunto-preview { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; flex-shrink: 0; display: none; }
+        .pending-adjunto.visible .pending-adjunto-preview { display: block; }
 
         .pending-adjunto-info { flex: 1; min-width: 0; }
-        .pending-adjunto-info strong { font-size: 13px; font-weight: 700; color: #5540a0; display: block; }
-        .pending-adjunto-info span   { font-size: 11px; color: #9c82f5; }
+        .pending-adjunto-info strong { font-size: 13px; font-weight: 700; color: #222; display: block; }
+        .pending-adjunto-info span   { font-size: 11px; color: #555; }
 
         .pending-adjunto-remove {
             width: 24px; height: 24px; border-radius: 6px; border: none;
-            background: rgba(156,130,245,0.2); color: #7c5cbf; cursor: pointer;
+            background: rgba(0,0,0,0.08); color: #222; cursor: pointer;
             font-size: 14px; display: flex; align-items: center; justify-content: center;
             transition: 0.2s; flex-shrink: 0;
         }
-        .pending-adjunto-remove:hover { background: rgba(156,130,245,0.4); }
+        .pending-adjunto-remove:hover { background: rgba(0,0,0,0.14); }
 
         /* Input area */
         .chat-input-area {
-            padding: 12px 14px; border-top: 1px solid #f0f0f8;
+            padding: 12px 14px; border-top: 1px solid #e1e1e1;
             display: flex; gap: 8px; align-items: center;
             background: white; flex-shrink: 0;
         }
 
         .file-label {
             width: 34px; height: 34px; border-radius: 8px;
-            background: #f4f6fb; border: 1.5px solid #e8eaf0;
+            background: #F4F4F4; border: 1.5px solid #E0E0E0;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 15px; transition: 0.2s; flex-shrink: 0;
         }
-        .file-label:hover { background: #ede9ff; border-color: #9c82f5; }
+        .file-label:hover { background: #ececec; border-color: #bdbdbd; }
         .file-label input { display: none; }
 
         .btn-adj-hist {
             width: 34px; height: 34px; border-radius: 8px;
-            background: #f4f6fb; border: 1.5px solid #e8eaf0;
+            background: #f4f4f4; border: 1.5px solid #d8d8d8;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 15px; transition: 0.2s; flex-shrink: 0;
         }
-        .btn-adj-hist:hover { background: #ede9ff; border-color: #9c82f5; }
+        .btn-adj-hist:hover { background: #e7e7e7; border-color: #c4c4c4; }
 
         #msg {
-            flex: 1; padding: 9px 13px; border: 1.5px solid #e8eaf0;
+            flex: 1; padding: 9px 13px; border: 1.5px solid #ddd;
             border-radius: 10px; font-size: 14px; font-family: inherit;
             background: #fafafa; transition: border-color 0.2s;
         }
-        #msg:focus { outline: none; border-color: #667eea; background: white; }
+        #msg:focus { outline: none; border-color: #444; background: white; }
 
         .send-btn {
             width: 36px; height: 36px; border-radius: 10px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #333;
             border: none; cursor: pointer; display: flex; align-items: center;
             justify-content: center; transition: 0.2s; flex-shrink: 0; font-size: 15px;
+            color: white;
         }
         .send-btn:hover { opacity: 0.88; transform: scale(1.05); }
 
         /* Modal selector historial */
         .modal-hist {
             display: none; position: fixed; inset: 0;
-            background: rgba(20,20,40,0.45); z-index: 300;
+            background: rgba(0,0,0,0.42); z-index: 300;
             justify-content: center; align-items: center; backdrop-filter: blur(4px);
         }
         .modal-hist.active { display: flex; }
@@ -269,7 +272,7 @@ $stmt->close();
         .modal-hist-card {
             background: white; border-radius: 16px; width: 90%; max-width: 560px;
             max-height: 75vh; display: flex; flex-direction: column;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.18); animation: popIn 0.2s ease;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.14); animation: popIn 0.2s ease;
         }
 
         @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -279,13 +282,13 @@ $stmt->close();
             justify-content: space-between;
         }
 
-        .modal-hist-header h3 { font-size: 16px; font-weight: 700; color: #1a1a2e; }
+        .modal-hist-header h3 { font-size: 16px; font-weight: 700; color: #111; }
 
         .modal-hist-close {
             width: 30px; height: 30px; border-radius: 8px; border: none;
-            background: #f4f6fb; cursor: pointer; font-size: 16px; color: #888; transition: 0.2s;
+            background: #f0f0f0; cursor: pointer; font-size: 16px; color: #666; transition: 0.2s;
         }
-        .modal-hist-close:hover { background: #e8eaf0; }
+        .modal-hist-close:hover { background: #dedede; }
 
         .modal-hist-tabs {
             display: flex; gap: 4px; padding: 14px 24px 0; flex-wrap: wrap;
@@ -293,11 +296,11 @@ $stmt->close();
 
         .mh-tab {
             padding: 7px 14px; border-radius: 7px; border: none;
-            background: #f4f6fb; font-size: 13px; font-weight: 600;
-            color: #888; cursor: pointer; transition: 0.2s;
+            background: #f4f4f4; font-size: 13px; font-weight: 600;
+            color: #666; cursor: pointer; transition: 0.2s;
         }
-        .mh-tab.active { background: #667eea; color: white; }
-        .mh-tab:not(.active):hover { background: #ede9ff; color: #555; }
+        .mh-tab.active { background: #333; color: white; }
+        .mh-tab:not(.active):hover { background: #e3e3e3; color: #222; }
 
         .modal-hist-list {
             flex: 1; overflow-y: auto; padding: 14px 24px 20px;
@@ -306,21 +309,22 @@ $stmt->close();
 
         .mh-item {
             display: flex; align-items: center; gap: 12px; padding: 12px 14px;
-            border-radius: 10px; border: 1.5px solid #f0f0f8;
+            border-radius: 10px; border: 1.5px solid #e5e5e5;
             cursor: pointer; transition: 0.2s; background: white;
         }
-        .mh-item:hover { border-color: #9c82f5; background: #faf8ff; }
+        .mh-item:hover { border-color: #bdbdbd; background: #F5F5F5; }
 
         .mh-icon {
             width: 36px; height: 36px; border-radius: 9px; display: flex;
             align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+            background: #d9d9d9;
         }
 
         .mh-info { flex: 1; min-width: 0; }
-        .mh-title { font-size: 13px; font-weight: 600; color: #1a1a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mh-meta  { font-size: 11px; color: #aaa; margin-top: 2px; }
+        .mh-title { font-size: 13px; font-weight: 600; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mh-meta  { font-size: 11px; color: #777; margin-top: 2px; }
 
-        .mh-empty { text-align: center; color: #ccc; font-size: 13px; padding: 24px 0; }
+        .mh-empty { text-align: center; color: #999; font-size: 13px; padding: 24px 0; }
     </style>
 </head>
 <body>
@@ -354,6 +358,7 @@ $stmt->close();
         <div id="mensajes"></div>
 
         <div class="pending-adjunto" id="pendingBar">
+            <img class="pending-adjunto-preview" id="pendingPreview" src="" alt="">
             <div class="pending-adjunto-icon" id="pendingIcon"></div>
             <div class="pending-adjunto-info">
                 <strong id="pendingTitle"></strong>
@@ -364,7 +369,7 @@ $stmt->close();
 
         <div class="chat-input-area">
             <label class="file-label" title="Adjuntar archivo">
-                📎
+                📁
                 <input type="file" id="archivo" accept="image/*,.pdf,.doc,.docx,.txt,.ppt,.pptx,.xls,.xlsx" onchange="archivoSeleccionado(this)">
             </label>
             <button class="btn-adj-hist" onclick="abrirModalHist()" title="Compartir del historial">📚</button>
@@ -404,19 +409,19 @@ $stmt->close();
 const miUsuario   = <?php echo json_encode($usuario); ?>;
 const historialJS = <?php echo json_encode($historial); ?>;
 
-const tipoIcons = { resumen: '📄', test: '🧪', flashcards: '🃏', mapa: '🗺️' };
-const tipoColors = { resumen: '#f0ecff', test: '#e6f4ff', flashcards: '#e4faf1', mapa: '#fff7e6' };
+const tipoIcons = { resumen: '📄', test: '🧪', flashcards: '🧠', mapa: '🗺️' };
+const tipoColors = { resumen: '#d8d8d8', test: '#dedede', flashcards: '#e4e4e4', mapa: '#f0f0f0' };
 const tipoLabels = { resumen: 'Resumen', test: 'Test', flashcards: 'Flashcards', mapa: 'Mapa conceptual' };
 
 const extIcons = {
-    pdf:  { icon: '📕', color: '#fff0f0', ext: 'PDF' },
-    doc:  { icon: '📘', color: '#e8f0ff', ext: 'DOC' },
-    docx: { icon: '📘', color: '#e8f0ff', ext: 'DOCX' },
-    ppt:  { icon: '📙', color: '#fff4e8', ext: 'PPT' },
-    pptx: { icon: '📙', color: '#fff4e8', ext: 'PPTX' },
-    xls:  { icon: '📗', color: '#e8fff0', ext: 'XLS' },
-    xlsx: { icon: '📗', color: '#e8fff0', ext: 'XLSX' },
-    txt:  { icon: '📄', color: '#f4f6fb', ext: 'TXT' },
+    pdf:  { icon: '📄', color: '#e0e0e0', ext: 'PDF' },
+    doc:  { icon: '📄', color: '#d8d8d8', ext: 'DOC' },
+    docx: { icon: '📄', color: '#d8d8d8', ext: 'DOCX' },
+    ppt:  { icon: '📊', color: '#e6e6e6', ext: 'PPT' },
+    pptx: { icon: '📊', color: '#e6e6e6', ext: 'PPTX' },
+    xls:  { icon: '📈', color: '#d8d8d8', ext: 'XLS' },
+    xlsx: { icon: '📈', color: '#d8d8d8', ext: 'XLSX' },
+    txt:  { icon: '📄', color: '#f4f4f4', ext: 'TXT' },
 };
 
 const imgExts = ['jpg','jpeg','png','gif','webp','bmp','svg'];
@@ -438,21 +443,33 @@ function formatBytes(b) {
 
 let adjuntoPendiente = null;
 
-// ── Archivo seleccionado ───────────────────────────────
+// â”€â”€ Archivo seleccionado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function archivoSeleccionado(input) {
     if (!input.files[0]) return;
     quitarAdjunto();
     const f    = input.files[0];
     const ext  = getExt(f.name);
-    const info = extIcons[ext] || { icon: esImagen(f.name) ? '🖼️' : '📎', color: '#f4f6fb', ext: ext.toUpperCase() };
+    const info = extIcons[ext] || { icon: esImagen(f.name) ? '🖼️' : '📁', color: '#F4F4F4', ext: ext.toUpperCase() };
 
-    document.getElementById('pendingIcon').textContent  = info.icon;
+    const previewImg = document.getElementById('pendingPreview');
+    const iconDiv = document.getElementById('pendingIcon');
+
+    if (esImagen(f.name)) {
+        previewImg.src = URL.createObjectURL(f);
+        previewImg.style.display = 'block';
+        iconDiv.style.display = 'none';
+    } else {
+        previewImg.style.display = 'none';
+        iconDiv.style.display = 'block';
+        iconDiv.textContent = info.icon;
+    }
+
     document.getElementById('pendingTitle').textContent = f.name;
     document.getElementById('pendingTipo').textContent  = formatBytes(f.size);
     document.getElementById('pendingBar').classList.add('visible');
 }
 
-// ── Enviar ─────────────────────────────────────────────
+// â”€â”€ Enviar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function enviar() {
     const msg     = document.getElementById('msg').value.trim();
     const archivo = document.getElementById('archivo').files[0];
@@ -474,7 +491,7 @@ async function enviar() {
     cargar();
 }
 
-// ── Cargar mensajes ────────────────────────────────────
+// â”€â”€ Cargar mensajes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function cargar() {
     try {
         const res  = await fetch('get_msgs.php');
@@ -513,7 +530,7 @@ async function cargar() {
 
 function renderFilePreview(archivo, original) {
     const ext  = getExt(original);
-    const info = extIcons[ext] || { icon: '📎', color: '#f4f6fb', ext: ext.toUpperCase() || 'FILE' };
+    const info = extIcons[ext] || { icon: '📁', color: '#F4F4F4', ext: ext.toUpperCase() || 'FILE' };
     return `<a class="file-preview" href="uploads/${escHtml(archivo)}" target="_blank" download="${escHtml(original)}">
         <div class="file-preview-icon" style="background:${info.color}">${info.icon}</div>
         <div class="file-preview-info">
@@ -529,13 +546,13 @@ function abrirLightbox(src) {
 }
 
 function renderAdjCard(m, esMio) {
-    const icon  = tipoIcons[m.adjunto_tipo]  || '📎';
+    const icon  = tipoIcons[m.adjunto_tipo]  || '📁';
     const label = tipoLabels[m.adjunto_tipo] || m.adjunto_tipo;
     let preview = '';
 
     if (m.adjunto_tipo === 'resumen' && m.adj_resumen) {
         const txt = m.adj_resumen.replace(/\*\*/g, '').substring(0, 120);
-        preview = `<div class="adj-preview-line">${escHtml(txt)}…</div>`;
+        preview = `<div class="adj-preview-line">${escHtml(txt)}â€¦</div>`;
     } else if (m.adjunto_tipo === 'test') {
         const ac  = m.aciertos ?? '?';
         const tot = m.total_preguntas ?? '?';
@@ -547,7 +564,7 @@ function renderAdjCard(m, esMio) {
     } else if (m.adjunto_tipo === 'mapa' && m.adj_json) {
         const mapa  = tryParseJSON(m.adj_json) || {};
         const ramas = (mapa.ramas || []).slice(0, 3).map(r => escHtml(r.titulo)).join(', ');
-        preview = `<div class="adj-preview-line">${ramas}${(mapa.ramas||[]).length > 3 ? '…' : ''}</div>`;
+        preview = `<div class="adj-preview-line">${ramas}${(mapa.ramas||[]).length > 3 ? 'â€¦' : ''}</div>`;
     }
 
     return `<div class="adj-card">
@@ -556,7 +573,7 @@ function renderAdjCard(m, esMio) {
     </div>`;
 }
 
-// ── Modal historial ────────────────────────────────────
+// â”€â”€ Modal historial â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let mhTabActual = 'resumen';
 
 function abrirModalHist() {
@@ -604,7 +621,7 @@ function renderMhList(tipo) {
 
 function seleccionarAdjunto(id, tipo, titulo) {
     adjuntoPendiente = { id, tipo, titulo };
-    document.getElementById('pendingIcon').textContent  = tipoIcons[tipo] || '📎';
+    document.getElementById('pendingIcon').textContent  = tipoIcons[tipo] || '📁';
     document.getElementById('pendingTitle').textContent = titulo;
     document.getElementById('pendingTipo').textContent  = tipoLabels[tipo] || tipo;
     document.getElementById('pendingBar').classList.add('visible');
@@ -616,9 +633,14 @@ function quitarAdjunto() {
     document.getElementById('pendingBar').classList.remove('visible');
     document.getElementById('pendingTitle').textContent = '';
     document.getElementById('archivo').value = '';
+    const previewImg = document.getElementById('pendingPreview');
+    if (previewImg.src) {
+        URL.revokeObjectURL(previewImg.src);
+        previewImg.src = '';
+    }
 }
 
-// ── Utils ──────────────────────────────────────────────
+// â”€â”€ Utils â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function escHtml(str) {
     const d = document.createElement('div');
     d.appendChild(document.createTextNode(str || ''));
@@ -649,3 +671,7 @@ document.addEventListener('DOMContentLoaded', cargar);
 
 </body>
 </html>
+
+
+
+

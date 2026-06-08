@@ -1,0 +1,75 @@
+/**
+ * ============================================================================
+ * ARCHIVO: u336643015_livechat.sql
+ * ============================================================================
+ * PROPÓSITO:
+ *   Archivo SQL que contiene el esquema completo de la base de datos
+ *   para la plataforma EduIA. Generado por phpMyAdmin, contiene:
+ *   - Definición de tablas (estructura)
+ *   - Datos de ejemplo/seed data
+ *   - Configuración de índices y relaciones
+ *
+ * INFORMACIÓN GENERAL:
+ *   - Nombre BD: u336643015_livechat
+ *   - Server: MariaDB 10.4.32
+ *   - Charset: utf8mb4
+ *   - Date: May 12, 2026 at 11:58 AM
+ *   - Generado por: phpMyAdmin 5.2.1
+ *
+ * TABLAS PRINCIPALES:
+ *
+ *   1. historial
+ *      - Almacena todos los trabajos generados por usuarios
+ *      - Campos: id, user_id, pregunta, resumen, aciertos, total_preguntas,
+ *                tipo (resumen/test/flashcards/mapa), contenido_json, fecha
+ *      - Tipos de contenido: resumen, test, flashcards, mapa
+ *      - Relación: cada registro pertenece a un user_id
+ *
+ *   2. mensajes
+ *      - Almacena mensajes del chat/live chat
+ *      - Campos: id, usuario_id, mensaje, fecha, archivo, archivo_original,
+ *                adjunto_tipo, adjunto_id
+ *      - Soporta: texto, archivos adjuntos, tipos de adjuntos
+ *      - Relación: cada mensaje pertenece a un usuario_id
+ *
+ *   3. resumenes
+ *      - Biblioteca compartida de resúmenes
+ *      - Campos: id, titulo, descripcion, user_id, documento, fecha_creacion
+ *      - Documentos: almacena en files, referencia en campo 'documento'
+ *      - Relación: cada resumen pertenece a un user_id (autor)
+ *
+ *   4. usuarios
+ *      - Tabla de usuarios registrados
+ *      - Campos: id, nombre, email, contraseña (hash), fecha_registro
+ *      - Cada usuario puede tener múltiples registros en historial y resumenes
+ *
+ * CARACTERÍSTICAS DE DISEÑO:
+ *   - Charset utf8mb4: Soporte para caracteres especiales, emojis, CJK
+ *   - Collation: utf8mb4_unicode_ci (comparación case-insensitive)
+ *   - Timestamps: Fechas automáticas con current_timestamp()
+ *   - IDs: Auto-increment para identificadores únicos
+ *   - Relaciones: Foreign keys entre tablas
+ *
+ * CÓMO RESTAURAR:
+ *   1. phpMyAdmin:
+ *      - Crear BD nueva: u336643015_livechat
+ *      - Importar archivo: u336643015_livechat.sql
+ *   
+ *   2. Línea de comandos MySQL:
+ *      mysql -u root -p < u336643015_livechat.sql
+ *   
+ *   3. Desde PHP:
+ *      $conn->exec(file_get_contents('u336643015_livechat.sql'));
+ *
+ * INFORMACIÓN DE DATOS:
+ *   - El archivo contiene datos de ejemplo (historiales, mensajes, etc.)
+ *   - Fechas de datos: enero 2026 - marzo 2026
+ *   - Útil para testing y demostración
+ *
+ * DEPENDENCIAS:
+ *   - MariaDB/MySQL 10.4 o superior
+ *   - Soporte para utf8mb4
+ *   - Permisos de creación de tablas
+ *
+ * ============================================================================
+ */

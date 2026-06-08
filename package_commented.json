@@ -1,0 +1,44 @@
+/**
+ * ============================================================================
+ * ARCHIVO: package.json
+ * ============================================================================
+ * PROPÓSITO:
+ *   Archivo de configuración de Node.js que define las dependencias del
+ *   proyecto. En este caso, solo incluye la librería Mermaid para diagramas.
+ *
+ * FUNCIONALIDAD CLAVE:
+ *   - Define metadatos del proyecto (nombre, versión, autor)
+ *   - Lista dependencias requeridas para el proyecto
+ *   - Especifica versiones compatibles de paquetes
+ *   - Permite instalar dependencias con: npm install
+ *
+ * DEPENDENCIAS ACTUALES:
+ *   - mermaid: ^11.14.0
+ *     * Librería para crear diagramas y gráficos desde código
+ *     * Usada en: docs/ (diagramas de secuencia, flujos)
+ *     * Permite: flowchart, sequenceDiagram, classDiagram, etc.
+ *
+ * CÓMO USAR:
+ *   1. Navega a la carpeta del proyecto
+ *   2. Ejecuta: npm install
+ *   3. Esto crea carpeta node_modules/ con dependencias
+ *   4. Ahora puedes usar Mermaid en los archivos HTML
+ *
+ * VERSIÓN SEMÁNTICA:
+ *   ^11.14.0 significa:
+ *   - Versión actual: 11.14.0
+ *   - ^ permite actualizaciones de MINOR y PATCH
+ *   - Actualizaciones MAJOR (12.x) no se instalarán automáticamente
+ *
+ * SCRIPTS (si existen):
+ *   Pueden definirse en "scripts" para comandos personalizados
+ *   Ejemplo: npm run build, npm start, etc.
+ *
+ * ============================================================================
+ */
+
+{
+  "dependencies": {
+    "mermaid": "^11.14.0"
+  }
+}

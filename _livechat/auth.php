@@ -39,28 +39,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } elseif ($action === 'register') {
         // Register
-        if (empty($nombre) || empty($password)) {
+        $email = trim($_POST['email'] ?? '');
+        if (empty($nombre) || empty($password) || empty($email)) {
             $_SESSION['error'] = 'Por favor completa todos los campos';
             header('Location: ../index.php');
             exit;
         }
 
-        // CORRECCIÓN: Se cambió 'username' por 'nombre' para verificar existencia
-        $stmt = $conn->prepare("SELECT id FROM usuarios WHERE nombre = ?");
-        $stmt->bind_param("s", $nombre);
+        // Verificar si el nombre o email ya existen
+        $stmt = $conn->prepare("SELECT id FROM usuarios WHERE nombre = ? OR email = ?");
+        $stmt->bind_param("ss", $nombre, $email);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            $_SESSION['error'] = 'El usuario ya existe';
+            $_SESSION['error'] = 'El usuario o correo electrónico ya existe';
             header('Location: ../index.php');
             exit;
         }
 
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        // CORRECCIÓN: Se cambió la columna de inserción a 'nombre'
-        $stmt = $conn->prepare("INSERT INTO usuarios (nombre, password) VALUES (?, ?)");
-        $stmt->bind_param("ss", $nombre, $hashedPassword);
+        $stmt = $conn->prepare("INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $nombre, $email, $hashedPassword);
 
         if ($stmt->execute()) {
             $_SESSION['user_id'] = $stmt->insert_id;

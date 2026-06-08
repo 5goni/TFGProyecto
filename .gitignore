@@ -1,0 +1,18 @@
+# Ignore API keys and secret configuration
+api_key.php
+
+# Ignore uploads and temporary files
+_livechat/uploads/
+uploads/
+
+# Node and PHP temporary files
+node_modules/
+*.log
+*.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env

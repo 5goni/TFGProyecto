@@ -1,4 +1,43 @@
-<?php
+﻿<?php
+/**
+ * ============================================================================
+ * ARCHIVO: historial.php
+ * ============================================================================
+ * PROPÓSITO:
+ *   Muestra el historial completo de trabajos generados por el usuario
+ *   (resúmenes, tests, flashcards, mapas conceptuales).
+ *   Permite visualizar, reutilizar y publicar contenido previo.
+ *
+ * FUNCIONALIDAD CLAVE:
+ *   - Valida autenticación del usuario
+ *   - Recupera todos los registros de la tabla 'historial' del usuario
+ *   - Organiza elementos por tipo: resúmenes, tests, flashcards, mapas
+ *   - Permite publicar resúmenes en la librería compartida
+ *   - Interfaz con filtros y búsqueda
+ *   - Muestra fecha, tema y resultados (si aplica)
+ *   - Acceso directo al contenido guardado
+ *
+ * FLUJO DE DATOS:
+ *   1. Usuario accede a historial.php
+ *   2. Sistema recupera todos los registros del usuario de tabla 'historial'
+ *   3. Se organizan por tipo en arrays separados
+ *   4. Si el usuario elige publicar, se copia a tabla 'resumenes'
+ *   5. Se muestra interfaz con todos los elementos ordenados
+ *
+ * CAMPOS MOSTRADOS:
+ *   - pregunta (tema/consulta original)
+ *   - resumen (contenido generado)
+ *   - tipo (resumen/test/flashcards/mapa)
+ *   - aciertos/total_preguntas (si es test)
+ *   - fecha (cuándo se creó)
+ *
+ * DEPENDENCIAS:
+ *   - conn.php (conexión a BD)
+ *   - Session activa (usuario autenticado)
+ *
+ * ============================================================================
+ */
+
 session_start();
 include 'conn.php';
 
@@ -28,6 +67,53 @@ while ($fila = $resultado->fetch_assoc()) {
     elseif ($tipo === 'mapa')        $mapas[]      = $fila;
     else                             $resumenes[]  = $fila;
 }
+$stmt->close();
+
+// Procesar publicación
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['publicar_id'])) {
+    $publicar_id = intval($_POST['publicar_id']);
+    
+    // Obtener datos del historial
+    $stmt_hist = $conn->prepare("SELECT pregunta, resumen FROM historial WHERE id = ? AND user_id = ? AND tipo = 'resumen'");
+    if ($stmt_hist) {
+        $stmt_hist->bind_param("ii", $publicar_id, $user_id);
+        $stmt_hist->execute();
+        $result_hist = $stmt_hist->get_result();
+        
+        if ($result_hist->num_rows > 0) {
+            $hist = $result_hist->fetch_assoc();
+            $titulo = $hist['pregunta'];
+            $descripcion = substr($hist['resumen'], 0, 200) . (strlen($hist['resumen']) > 200 ? '...' : '');
+            $documento_contenido = $hist['pregunta'] . "\n\n" . $hist['resumen'];
+            
+            // Guardar como archivo de texto
+            $nombre_archivo = time() . '_' . bin2hex(random_bytes(8)) . '.txt';
+            $upload_dir = __DIR__ . '/_livechat/uploads/';
+            $ruta_destino = $upload_dir . $nombre_archivo;
+            
+            if (!is_dir($upload_dir)) {
+                if (!mkdir($upload_dir, 0777, true)) {
+                    // Error
+                }
+            }
+            
+            if (file_put_contents($ruta_destino, $documento_contenido)) {
+                // Insertar en base de datos
+                $stmt = $conn->prepare("INSERT INTO resumenes (titulo, descripcion, user_id, documento, fecha_creacion) VALUES (?, ?, ?, ?, NOW())");
+                if ($stmt) {
+                    $stmt->bind_param("ssis", $titulo, $descripcion, $user_id, $nombre_archivo);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+            }
+        }
+        $stmt_hist->close();
+    }
+    
+    // Recargar página
+    header("Location: historial.php");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -40,13 +126,13 @@ while ($fila = $resultado->fetch_assoc()) {
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6fb;
+            background: #F4F4F4;
             min-height: 100vh;
         }
 
         .topbar {
             background: white;
-            border-bottom: 1px solid #e8eaf0;
+            border-bottom: 1px solid #E0E0E0;
             padding: 0 32px;
             height: 60px;
             display: flex;
@@ -59,9 +145,9 @@ while ($fila = $resultado->fetch_assoc()) {
         }
 
         .topbar-left { display: flex; align-items: center; gap: 12px; font-size: 14px; color: #888; }
-        .topbar-logo { font-size: 18px; font-weight: 700; color: #667eea; text-decoration: none; }
+        .topbar-logo { font-size: 18px; font-weight: 700; color: #333; text-decoration: none; }
         .topbar-sep { color: #ccc; }
-        .topbar-link { color: #667eea; text-decoration: none; }
+        .topbar-link { color: #333; text-decoration: none; }
         .topbar-link:hover { text-decoration: underline; }
         .topbar-current { color: #555; font-weight: 500; }
         .topbar-right { display: flex; align-items: center; gap: 12px; }
@@ -69,20 +155,20 @@ while ($fila = $resultado->fetch_assoc()) {
 
         .btn-outline {
             font-size: 13px;
-            color: #667eea;
+            color: #333;
             text-decoration: none;
             padding: 6px 14px;
-            border: 1px solid #667eea;
+            border: 1px solid #333;
             border-radius: 6px;
             transition: 0.2s;
         }
 
-        .btn-outline:hover { background: #667eea; color: white; }
+        .btn-outline:hover { background: #333; color: white; }
 
         .page-wrapper { max-width: 1000px; margin: 0 auto; padding: 48px 24px; }
         .page-header { margin-bottom: 32px; }
-        .page-header h1 { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
-        .page-header p { font-size: 14px; color: #7a7a9a; }
+        .page-header h1 { font-size: 26px; font-weight: 700; color: #111; margin-bottom: 6px; }
+        .page-header p { font-size: 14px; color: #555; }
 
         .tabs-bar {
             display: flex;
@@ -91,7 +177,7 @@ while ($fila = $resultado->fetch_assoc()) {
             border-radius: 10px;
             padding: 4px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: 1.5px solid #f0f0f8;
+            border: 1.5px solid #EAEAEA;
             margin-bottom: 28px;
             flex-wrap: wrap;
         }
@@ -108,8 +194,8 @@ while ($fila = $resultado->fetch_assoc()) {
             transition: 0.2s;
         }
 
-        .tab-btn.active { background: #667eea; color: white; }
-        .tab-btn:not(.active):hover { background: #f4f6fb; color: #555; }
+        .tab-btn.active { background: #333; color: white; }
+        .tab-btn:not(.active):hover { background: #F4F4F4; color: #555; }
 
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
@@ -122,23 +208,23 @@ while ($fila = $resultado->fetch_assoc()) {
         }
 
         .section-title { font-size: 15px; font-weight: 700; color: #333; }
-        .section-count { font-size: 13px; color: #aaa; }
+        .section-count { font-size: 13px; color: #888; }
 
         .empty-state {
             background: white;
             border-radius: 14px;
             padding: 48px;
             text-align: center;
-            border: 1.5px dashed #e0e0f0;
+            border: 1.5px dashed #e0e0e0;
         }
 
         .empty-state p { color: #bbb; font-size: 14px; margin-bottom: 16px; }
 
         .btn-go {
             padding: 9px 20px;
-            background: #f4f6fb;
-            color: #667eea;
-            border: 1.5px solid #e0daf8;
+            background: #F4F4F4;
+            color: #333;
+            border: 1.5px solid #e0e0e0;
             border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
@@ -148,7 +234,7 @@ while ($fila = $resultado->fetch_assoc()) {
             transition: 0.2s;
         }
 
-        .btn-go:hover { background: #ede9ff; }
+        .btn-go:hover { background: #F4F4F4; }
 
         .list-items { display: flex; flex-direction: column; gap: 12px; }
 
@@ -156,7 +242,7 @@ while ($fila = $resultado->fetch_assoc()) {
             background: white;
             border-radius: 12px;
             padding: 18px 22px;
-            border: 1.5px solid #f0f0f8;
+            border: 1.5px solid #EAEAEA;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             cursor: pointer;
             transition: 0.2s;
@@ -165,7 +251,7 @@ while ($fila = $resultado->fetch_assoc()) {
             gap: 16px;
         }
 
-        .history-item:hover { border-color: #c8c0f0; transform: translateX(2px); }
+        .history-item:hover { border-color: #d1d1d1; transform: translateX(2px); }
 
         .item-icon {
             width: 40px;
@@ -183,27 +269,27 @@ while ($fila = $resultado->fetch_assoc()) {
         .item-title {
             font-size: 14px;
             font-weight: 600;
-            color: #1a1a2e;
+            color: #111;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             margin-bottom: 3px;
         }
 
-        .item-meta { font-size: 12px; color: #aaa; }
+        .item-meta { font-size: 12px; color: #888; }
         .item-right { flex-shrink: 0; }
 
         .score-badge {
-            background: #e6f4ff;
-            color: #2b7fd4;
+            background: #F5F5F5;
+            color: #333;
             font-size: 12px;
             font-weight: 700;
             padding: 4px 10px;
             border-radius: 6px;
         }
 
-        .score-badge.good { background: #e4faf1; color: #1e8a5a; }
-        .score-badge.bad  { background: #fff0f0; color: #b94040; }
+        .score-badge.good { background: #F5F5F5; color: #333; }
+        .score-badge.bad  { background: #F5F5F5; color: #999; }
 
         .modal {
             display: none;
@@ -239,7 +325,7 @@ while ($fila = $resultado->fetch_assoc()) {
             gap: 12px;
         }
 
-        .modal-title { font-size: 18px; font-weight: 700; color: #1a1a2e; line-height: 1.4; }
+        .modal-title { font-size: 18px; font-weight: 700; color: #111; line-height: 1.4; }
         .modal-date  { font-size: 12px; color: #bbb; margin-top: 4px; }
 
         .modal-close {
@@ -247,7 +333,7 @@ while ($fila = $resultado->fetch_assoc()) {
             height: 32px;
             border-radius: 8px;
             border: none;
-            background: #f4f6fb;
+            background: #F4F4F4;
             cursor: pointer;
             font-size: 18px;
             display: flex;
@@ -258,7 +344,7 @@ while ($fila = $resultado->fetch_assoc()) {
             transition: 0.2s;
         }
 
-        .modal-close:hover { background: #e8eaf0; }
+        .modal-close:hover { background: #E0E0E0; }
 
         .modal-body { padding: 20px 28px 28px; }
 
@@ -275,7 +361,7 @@ while ($fila = $resultado->fetch_assoc()) {
             font-size: 14px;
             line-height: 1.8;
             color: #333;
-            background: #f9f9fb;
+            background: #F4F4F4;
             padding: 16px;
             border-radius: 10px;
             white-space: pre-wrap;
@@ -288,6 +374,29 @@ while ($fila = $resultado->fetch_assoc()) {
             border-radius: 8px;
             font-size: 14px;
             font-weight: 700;
+        }
+
+        .modal-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-publish {
+            padding: 8px 16px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-publish:hover {
+            background: #222;
         }
     </style>
 </head>
@@ -343,7 +452,7 @@ while ($fila = $resultado->fetch_assoc()) {
         <div class="list-items">
             <?php foreach ($resumenes as $fila): ?>
             <div class="history-item" onclick="openModal(<?php echo htmlspecialchars(json_encode($fila)); ?>, 'resumen')">
-                <div class="item-icon" style="background:#f0ecff;">📄</div>
+                <div class="item-icon" style="background:#F5F5F5;">📄</div>
                 <div class="item-body">
                     <div class="item-title"><?php echo htmlspecialchars($fila['pregunta']); ?></div>
                     <div class="item-meta"><?php echo date("d/m/Y H:i", strtotime($fila['fecha'])); ?></div>
@@ -372,7 +481,7 @@ while ($fila = $resultado->fetch_assoc()) {
                 $badgeClass = $pct >= 80 ? 'good' : ($pct >= 50 ? '' : 'bad');
             ?>
             <div class="history-item" onclick="openModal(<?php echo htmlspecialchars(json_encode($fila)); ?>, 'test')">
-                <div class="item-icon" style="background:#e6f4ff;">🧪</div>
+                <div class="item-icon" style="background:#F5F5F5;">🧪</div>
                 <div class="item-body">
                     <div class="item-title"><?php echo htmlspecialchars($fila['pregunta']); ?></div>
                     <div class="item-meta"><?php echo date("d/m/Y H:i", strtotime($fila['fecha'])); ?></div>
@@ -403,13 +512,13 @@ while ($fila = $resultado->fetch_assoc()) {
                 $cards = json_decode($fila['contenido_json'] ?? '[]', true) ?: [];
             ?>
             <div class="history-item" onclick="openModalFlash(<?php echo htmlspecialchars(json_encode($fila)); ?>)">
-                <div class="item-icon" style="background:#e4faf1;">🃏</div>
+                <div class="item-icon" style="background:#F5F5F5;">🧠</div>
                 <div class="item-body">
                     <div class="item-title"><?php echo htmlspecialchars($fila['pregunta']); ?></div>
                     <div class="item-meta"><?php echo date("d/m/Y H:i", strtotime($fila['fecha'])); ?></div>
                 </div>
                 <div class="item-right">
-                    <span class="score-badge" style="background:#e4faf1;color:#1e8a5a;"><?php echo count($cards); ?> tarjetas</span>
+                    <span class="score-badge" style="background:#F5F5F5;color:#333;"><?php echo count($cards); ?> tarjetas</span>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -434,13 +543,13 @@ while ($fila = $resultado->fetch_assoc()) {
                 $mapa = json_decode($fila['contenido_json'] ?? '{}', true) ?: [];
             ?>
             <div class="history-item" onclick="openModalMapa(<?php echo htmlspecialchars(json_encode($fila)); ?>)">
-                <div class="item-icon" style="background:#fff7e6;">🗺️</div>
+                <div class="item-icon" style="background:#F5F5F5;">🗺️</div>
                 <div class="item-body">
                     <div class="item-title"><?php echo htmlspecialchars($fila['pregunta']); ?></div>
                     <div class="item-meta"><?php echo date("d/m/Y H:i", strtotime($fila['fecha'])); ?></div>
                 </div>
                 <div class="item-right">
-                    <span class="score-badge" style="background:#fff7e6;color:#b97a00;"><?php echo count($mapa['ramas'] ?? []); ?> ramas</span>
+                    <span class="score-badge" style="background:#F5F5F5;color:#888;"><?php echo count($mapa['ramas'] ?? []); ?> ramas</span>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -461,6 +570,7 @@ while ($fila = $resultado->fetch_assoc()) {
             <button class="modal-close" onclick="closeModal()">&#x2715;</button>
         </div>
         <div class="modal-body" id="modal-body"></div>
+        <div class="modal-actions" id="modal-actions"></div>
     </div>
 </div>
 
@@ -480,20 +590,23 @@ while ($fila = $resultado->fetch_assoc()) {
         document.getElementById('modal-title').textContent = data.pregunta;
         document.getElementById('modal-date').textContent  = 'Generado el: ' + data.fecha;
         let html = '';
+        let actions = '';
         if (tipo === 'resumen' && data.resumen) {
             html += '<div class="modal-section-label">Resumen</div>';
             html += '<div class="modal-text">' + parseBold(data.resumen) + '</div>';
+            actions = '<form method="POST" style="display:inline;"><input type="hidden" name="publicar_id" value="' + data.id + '"><button type="submit" class="btn-publish">📚 Publicar en biblioteca</button></form>';
         }
         if (tipo === 'test') {
             const ac   = parseInt(data.aciertos) || 0;
             const tot  = parseInt(data.total_preguntas) || 0;
             const pct  = tot > 0 ? Math.round((ac / tot) * 100) : 0;
-            const col  = pct >= 80 ? '#1e8a5a' : pct >= 50 ? '#2b7fd4' : '#b94040';
-            const bg   = pct >= 80 ? '#e4faf1' : pct >= 50 ? '#e6f4ff' : '#fff0f0';
+            const col  = pct >= 80 ? '#333' : pct >= 50 ? '#333' : '#999';
+            const bg   = pct >= 80 ? '#F5F5F5' : pct >= 50 ? '#F5F5F5' : '#F5F5F5';
             html += '<div class="modal-section-label">Resultado</div>';
             html += `<div class="modal-score" style="background:${bg};color:${col};">${ac} de ${tot} aciertos (${pct}%)</div>`;
         }
         document.getElementById('modal-body').innerHTML = html;
+        document.getElementById('modal-actions').innerHTML = actions;
         document.getElementById('detailModal').classList.add('active');
     }
 
@@ -503,9 +616,9 @@ while ($fila = $resultado->fetch_assoc()) {
         document.getElementById('modal-date').textContent  = 'Generado el: ' + data.fecha;
         let html = '<div class="modal-section-label">Flashcards (' + cards.length + ' tarjetas)</div>';
         cards.forEach((c, i) => {
-            html += `<div style="background:#f9f9fb;border-radius:8px;padding:12px 14px;margin-bottom:10px;border:1px solid #e8eaf0;">
-                <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:6px;">${i+1}. ${escHtml(c.frente)}</div>
-                <div style="font-size:13px;color:#555;border-left:3px solid #43d98e;padding-left:10px;">${escHtml(c.reverso)}</div>
+            html += `<div style="background:#F4F4F4;border-radius:8px;padding:12px 14px;margin-bottom:10px;border:1px solid #E0E0E0;">
+                <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:6px;">${i+1}. ${escHtml(c.frente)}</div>
+                <div style="font-size:13px;color:#555;border-left:3px solid #333;padding-left:10px;">${escHtml(c.reverso)}</div>
             </div>`;
         });
         document.getElementById('modal-body').innerHTML = html;
@@ -520,9 +633,9 @@ while ($fila = $resultado->fetch_assoc()) {
         if (mapa.ramas) {
             mapa.ramas.forEach(rama => {
                 html += `<div style="margin-bottom:14px;">
-                    <div style="background:#fff7e6;color:#b97a00;font-size:13px;font-weight:700;padding:7px 12px;border-radius:7px;display:inline-block;margin-bottom:8px;">${escHtml(rama.titulo)}</div>
+                    <div style="background:#F5F5F5;color:#888;font-size:13px;font-weight:700;padding:7px 12px;border-radius:7px;display:inline-block;margin-bottom:8px;">${escHtml(rama.titulo)}</div>
                     <div style="display:flex;flex-wrap:wrap;gap:7px;padding-left:8px;">
-                        ${(rama.subnodos||[]).map(s=>`<span style="background:#f4f6fb;border:1px solid #e0e0f0;border-radius:20px;padding:4px 12px;font-size:12px;color:#555;">${escHtml(s)}</span>`).join('')}
+                        ${(rama.subnodos||[]).map(s=>`<span style="background:#F4F4F4;border:1px solid #e0e0e0;border-radius:20px;padding:4px 12px;font-size:12px;color:#555;">${escHtml(s)}</span>`).join('')}
                     </div>
                 </div>`;
             });
@@ -548,3 +661,6 @@ while ($fila = $resultado->fetch_assoc()) {
 
 </body>
 </html>
+
+
+

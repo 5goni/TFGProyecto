@@ -1,4 +1,43 @@
-<?php
+﻿<?php
+/**
+ * ============================================================================
+ * ARCHIVO: estudio.php
+ * ============================================================================
+ * PROPÓSITO:
+ *   Dashboard principal de herramientas de estudio para usuarios autenticados.
+ *   Proporciona acceso a todas las funcionalidades de generación de contenido
+ *   educativo usando IA (resúmenes, flashcards, tests, mapas conceptuales).
+ *
+ * FUNCIONALIDAD CLAVE:
+ *   - Verifica autenticación del usuario (redirecciona a index.php si no está logueado)
+ *   - Muestra interfaz con tarjetas de herramientas disponibles
+ *   - Proporciona navegación a diferentes módulos de estudio
+ *   - Incluye barra superior (topbar) con información del usuario
+ *   - Organiza herramientas en secciones (Generación de contenido, Biblioteca)
+ *
+ * HERRAMIENTAS DISPONIBLES:
+ *   1. Resúmenes - Generar resúmenes de temas con IA
+ *   2. Flashcards - Crear tarjetas de estudio interactivas
+ *   3. Tests - Generar preguntas de opción múltiple
+ *   4. Mapas conceptuales - Visualizar relaciones entre conceptos
+ *   5. Pregunta a Gemini - Chat directo con la IA
+ *   6. Historial - Ver trabajos anteriores
+ *   7. Librería de resúmenes - Acceder a resúmenes compartidos
+ *   8. Subir documentos - Cargar documentos propios
+ *
+ * DEPENDENCIAS:
+ *   - conn.php (conexión a BD)
+ *   - Session activa (usuario autenticado)
+ *
+ * FLUJO:
+ *   1. Inicia sesión
+ *   2. Verifica autenticación
+ *   3. Obtiene nombre de usuario
+ *   4. Muestra interfaz con tarjetas de herramientas
+ *
+ * ============================================================================
+ */
+
 session_start();
 include 'conn.php';
 
@@ -20,13 +59,13 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6fb;
+            background: #F4F4F4;
             min-height: 100vh;
         }
 
         .topbar {
             background: white;
-            border-bottom: 1px solid #e8eaf0;
+            border-bottom: 1px solid #E0E0E0;
             padding: 0 32px;
             height: 60px;
             display: flex;
@@ -47,7 +86,7 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
         .topbar-logo {
             font-size: 18px;
             font-weight: 700;
-            color: #667eea;
+            color: #333;
             text-decoration: none;
         }
 
@@ -75,16 +114,16 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
 
         .btn-back {
             font-size: 13px;
-            color: #667eea;
+            color: #333;
             text-decoration: none;
             padding: 6px 14px;
-            border: 1px solid #667eea;
+            border: 1px solid #333;
             border-radius: 6px;
             transition: 0.2s;
         }
 
         .btn-back:hover {
-            background: #667eea;
+            background: #333;
             color: white;
         }
 
@@ -101,12 +140,12 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
         .page-header h1 {
             font-size: 28px;
             font-weight: 700;
-            color: #1a1a2e;
+            color: #111;
             margin-bottom: 8px;
         }
 
         .page-header p {
-            color: #7a7a9a;
+            color: #555;
             font-size: 15px;
         }
 
@@ -115,7 +154,7 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #aaa;
+            color: #888;
             margin-bottom: 16px;
             margin-top: 40px;
         }
@@ -145,20 +184,20 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
             box-shadow: 0 10px 28px rgba(0,0,0,0.10);
         }
 
-        .tool-card.purple { border-color: #e8e4ff; }
-        .tool-card.purple:hover { border-color: #9c82f5; box-shadow: 0 10px 28px rgba(156,130,245,0.18); }
+        .tool-card.purple { border-color: #F0F0F0; }
+        .tool-card.purple:hover { border-color: #444; box-shadow: 0 10px 28px rgba(156,130,245,0.18); }
 
-        .tool-card.blue { border-color: #dff0ff; }
-        .tool-card.blue:hover { border-color: #4facfe; box-shadow: 0 10px 28px rgba(79,172,254,0.18); }
+        .tool-card.blue { border-color: #F0F0F0; }
+        .tool-card.blue:hover { border-color: #333; box-shadow: 0 10px 28px rgba(79,172,254,0.18); }
 
-        .tool-card.green { border-color: #d8f5e8; }
-        .tool-card.green:hover { border-color: #43d98e; box-shadow: 0 10px 28px rgba(67,217,142,0.18); }
+        .tool-card.green { border-color: #F0F0F0; }
+        .tool-card.green:hover { border-color: #333; box-shadow: 0 10px 28px rgba(67,217,142,0.18); }
 
-        .tool-card.orange { border-color: #fff0dc; }
-        .tool-card.orange:hover { border-color: #f5a623; box-shadow: 0 10px 28px rgba(245,166,35,0.18); }
+        .tool-card.orange { border-color: #F5F5F5; }
+        .tool-card.orange:hover { border-color: #999; box-shadow: 0 10px 28px rgba(245,166,35,0.18); }
 
-        .tool-card.red { border-color: #ffe4e4; }
-        .tool-card.red:hover { border-color: #f56060; box-shadow: 0 10px 28px rgba(245,96,96,0.18); }
+        .tool-card.red { border-color: #F5F5F5; }
+        .tool-card.red:hover { border-color: #999; box-shadow: 0 10px 28px rgba(245,96,96,0.18); }
 
         .tool-icon {
             width: 48px;
@@ -170,21 +209,21 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
             font-size: 22px;
         }
 
-        .tool-icon.purple { background: #f0ecff; }
-        .tool-icon.blue   { background: #e6f4ff; }
-        .tool-icon.green  { background: #e4faf1; }
-        .tool-icon.orange { background: #fff7e6; }
-        .tool-icon.red    { background: #fff0f0; }
+        .tool-icon.purple { background: #F5F5F5; }
+        .tool-icon.blue   { background: #F5F5F5; }
+        .tool-icon.green  { background: #F5F5F5; }
+        .tool-icon.orange { background: #F5F5F5; }
+        .tool-icon.red    { background: #F5F5F5; }
 
         .tool-name {
             font-size: 16px;
             font-weight: 700;
-            color: #1a1a2e;
+            color: #111;
         }
 
         .tool-desc {
             font-size: 13px;
-            color: #8a8aaa;
+            color: #888;
             line-height: 1.5;
         }
 
@@ -199,11 +238,11 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
             letter-spacing: 0.5px;
         }
 
-        .badge-purple { background: #f0ecff; color: #7c5cbf; }
-        .badge-blue   { background: #e6f4ff; color: #2b7fd4; }
-        .badge-green  { background: #e4faf1; color: #1e8a5a; }
-        .badge-orange { background: #fff7e6; color: #b97a00; }
-        .badge-red    { background: #fff0f0; color: #b94040; }
+        .badge-purple { background: #F5F5F5; color: #444; }
+        .badge-blue   { background: #F5F5F5; color: #333; }
+        .badge-green  { background: #F5F5F5; color: #333; }
+        .badge-orange { background: #F5F5F5; color: #888; }
+        .badge-red    { background: #F5F5F5; color: #999; }
     </style>
 </head>
 <body>
@@ -244,7 +283,7 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
         </a>
 
         <a href="flashcards.php" class="tool-card green">
-            <div class="tool-icon green">🃏</div>
+            <div class="tool-icon green">🧠</div>
             <div class="tool-name">Flashcards</div>
             <div class="tool-desc">Crea tarjetas de memoria con pregunta y respuesta para repasar conceptos clave.</div>
             <span class="tool-badge badge-green">Memorización</span>
@@ -255,6 +294,13 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
             <div class="tool-name">Mapa Conceptual</div>
             <div class="tool-desc">Visualiza las relaciones entre conceptos en un mapa interactivo.</div>
             <span class="tool-badge badge-orange">Visual</span>
+        </a>
+
+        <a href="libreria_resumenes.php" class="tool-card red">
+            <div class="tool-icon red">📚</div>
+            <div class="tool-name">Biblioteca de Resúmenes</div>
+            <div class="tool-desc">Accede a tus resúmenes guardados y revisa contenido previo rápidamente.</div>
+            <span class="tool-badge badge-red">Historial</span>
         </a>
 
     </div>
@@ -274,3 +320,6 @@ $usuario = $_SESSION['username'] ?? 'Usuario';
 
 </body>
 </html>
+
+
+

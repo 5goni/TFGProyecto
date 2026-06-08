@@ -1,0 +1,60 @@
+/*
+ * ============================================================================
+ * ARCHIVO: diagrama_secuencia_login.md
+ * ============================================================================
+ * PROPÓSITO:
+ *   Diagrama de secuencia (UML) que visualiza el flujo de autenticación
+ *   durante el proceso de login de un usuario en la plataforma EduIA.
+ *   Muestra la interacción entre usuario, navegador, servidor y BD.
+ *
+ * PARTICIPANTES (Actores):
+ *   1. Usuario: Persona que accede a la plataforma
+ *   2. Navegador: Cliente web (Chrome, Firefox, Safari, etc.)
+ *   3. Servidor: Backend PHP (index.php, login handler)
+ *   4. BaseDeDatos: MySQL/MariaDB (tabla usuarios)
+ *
+ * FLUJO DEL LOGIN (Happy Path):
+ *   1. Usuario -> Navegador: Abrir página de login
+ *   2. Navegador -> Servidor: Solicitar formulario de login
+ *   3. Servidor -> Navegador: Enviar formulario HTML
+ *   4. Usuario -> Navegador: Introducir credenciales (email, contraseña)
+ *   5. Navegador -> Servidor: Enviar credenciales (POST)
+ *   6. Servidor -> BaseDeDatos: Consultar usuario y contraseña
+ *   7. BaseDeDatos -> Servidor: Respuesta de validación
+ *
+ * RAMIFICACIÓN (Condiciones):
+ *   - SI credenciales válidas:
+ *     * Servidor -> Navegador: Redirigir a estudio.php
+ *     * Servidor: Crear sesión $_SESSION['user_id']
+ *     * Navegador -> Usuario: Mostrar acceso concedido + dashboard
+ *   
+ *   - SI credenciales inválidas:
+ *     * Servidor -> Navegador: Devolver error de login
+ *     * Navegador -> Usuario: Mostrar mensaje de error
+ *     * Usuario puede reintentar o registrarse
+ *
+ * SEGURIDAD IMPLEMENTADA:
+ *   - Validación de credenciales en servidor (no confiar en cliente)
+ *   - Contraseña comparada con hash (probablemente password_hash)
+ *   - Sesión creada solo si credenciales son válidas
+ *   - Mensajes de error genéricos (no revelar si existe el usuario)
+ *
+ * SESIÓN:
+ *   - Almacenada en $_SESSION superglobal de PHP
+ *   - Campos: user_id, username, otros datos del usuario
+ *   - Persiste entre páginas (cookie de sesión)
+ *   - Se verifica en todas las páginas protegidas
+ *
+ * DIAGRAMA MERMAID:
+ *   - Formato: sequenceDiagram (UML Sequence Diagram)
+ *   - Tipo: Muestra orden temporal y flujo de mensajes
+ *   - Alternativas: alt ... end para ramificaciones
+ *
+ * ARCHIVOS RELACIONADOS:
+ *   - index.php: Página de login
+ *   - Formulario de login (HTML en index.php)
+ *   - Handler de autenticación (probablemente en otro archivo)
+ *   - conn.php: Conexión a BD
+ *
+ * ============================================================================
+ */
